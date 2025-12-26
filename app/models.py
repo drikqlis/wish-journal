@@ -1,5 +1,6 @@
 import os
 import sqlite3
+from concurrent.futures import ThreadPoolExecutor, as_completed
 from datetime import datetime
 
 import bcrypt
@@ -76,9 +77,26 @@ def create_user(first_name: str, last_name: str, username: str, password: str) -
 def get_user_by_password(password: str) -> sqlite3.Row | None:
     db = get_db()
     users = db.execute("SELECT * FROM users").fetchall()
-    for user in users:
-        if bcrypt.checkpw(password.encode("utf-8"), user["password_hash"].encode("utf-8")):
-            return user
+
+    def check_password(user):
+        """Check if password matches this user's hash."""
+        try:
+            if bcrypt.checkpw(password.encode("utf-8"), user["password_hash"].encode("utf-8")):
+                return user
+        except Exception:
+            pass
+        return None
+
+    # Check passwords in parallel using a thread pool
+    with ThreadPoolExecutor(max_workers=min(len(users), 10)) as executor:
+        futures = {executor.submit(check_password, user): user for user in users}
+        for future in as_completed(futures):
+            result = future.result()
+            if result is not None:
+                # Cancel remaining tasks and return immediately
+                executor.shutdown(wait=False, cancel_futures=True)
+                return result
+
     return None
 
 
