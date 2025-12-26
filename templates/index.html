@@ -1,0 +1,23 @@
+{% extends 'base.html' %}
+
+{% block title %}Wpisy - Wish Journal{% endblock %}
+
+{% block content %}
+<div class="posts-list">
+    {% if posts %}
+    {% for post in posts %}
+    <article class="post-preview">
+        <h2><a href="{{ url_for('main.post', slug=post.slug) }}">{{ post.title }}</a></h2>
+        <div class="post-meta">
+            <span class="author">{{ post.author }}</span>
+            <span class="separator">|</span>
+            <span class="date">{{ post.date | format_date }}</span>
+        </div>
+        <div class="post-excerpt">{{ post.excerpt | safe }}</div>
+    </article>
+    {% endfor %}
+    {% else %}
+    <p class="no-posts">Brak wpisow.</p>
+    {% endif %}
+</div>
+{% endblock %}

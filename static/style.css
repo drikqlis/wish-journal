@@ -1,0 +1,483 @@
+:root {
+    --bg-color: #0a0a0a;
+    --bg-elevated: #0f0e14;
+    --text-color: #9966CC;
+    --text-dim: #664499;
+    --accent-color: #BB88EE;
+    --accent-dim: #8855bb;
+    --error-color: #CC6666;
+    --border-color: #221a2e;
+}
+
+* {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+}
+
+/* Force dark color scheme for form controls */
+input, textarea, select, button {
+    color-scheme: dark;
+}
+
+body {
+    font-family: 'Courier New', Courier, monospace;
+    background-color: var(--bg-color);
+    color: var(--text-color);
+    line-height: 1.6;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+}
+
+a {
+    color: var(--accent-color);
+    text-decoration: none;
+}
+
+a:hover {
+    text-decoration: underline;
+}
+
+header {
+    padding: 1.5rem 1rem 0.5rem;
+}
+
+.ascii-header {
+    font-size: 0.55rem;
+    line-height: 1.15;
+    color: var(--accent-color);
+    text-align: center;
+    white-space: pre;
+    overflow: hidden;
+    margin-bottom: 0;
+    padding-bottom: 0.5rem;
+}
+
+.ascii-header a {
+    color: inherit;
+    text-decoration: none;
+    display: inline-block;
+}
+
+.ascii-header a:hover {
+    text-decoration: none;
+    color: var(--text-color);
+}
+
+@media (min-width: 640px) {
+    .ascii-header {
+        font-size: 0.75rem;
+    }
+}
+
+@media (min-width: 768px) {
+    .ascii-header {
+        font-size: 0.9rem;
+    }
+}
+
+main {
+    flex: 1;
+    max-width: 800px;
+    margin: 0 auto;
+    padding: 2rem 1rem;
+    width: 100%;
+}
+
+/* Login page */
+.login-page {
+    flex-direction: column;
+}
+
+.login-container {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    text-align: center;
+    padding: 2rem;
+}
+
+.login-form {
+    margin-top: 3rem;
+}
+
+.login-form input {
+    width: 400px;
+    padding: 0.75rem;
+    font-family: inherit;
+    font-size: 1rem;
+    background-color: var(--bg-elevated);
+    color: var(--text-color);
+    border: 1px solid var(--border-color);
+    text-align: center;
+}
+
+.login-form input:focus {
+    outline: none;
+    border-color: var(--accent-color);
+}
+
+.login-form input::placeholder {
+    color: var(--text-dim);
+}
+
+.login-error-container {
+    margin-top: 1.5rem;
+    text-align: center;
+    height: 2.5rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.login-error {
+    font-size: 0.875rem;
+    color: var(--error-color);
+    opacity: 0;
+    transition: opacity 0.3s;
+}
+
+.login-error.visible {
+    opacity: 1;
+}
+
+/* Flash messages */
+.flash-messages {
+    margin-bottom: 1.5rem;
+}
+
+.flash {
+    padding: 0.75rem 1rem;
+    margin-bottom: 0.5rem;
+    text-align: center;
+    font-size: 0.875rem;
+    opacity: 0;
+    transition: opacity 0.3s;
+}
+
+.flash.visible {
+    opacity: 1;
+}
+
+.flash-error {
+    color: var(--error-color);
+}
+
+.flash-success {
+    color: var(--accent-color);
+}
+
+/* Posts list */
+.posts-list {
+    display: flex;
+    flex-direction: column;
+    gap: 3rem;
+}
+
+.post-preview {
+    text-align: center;
+}
+
+.post-preview h2 {
+    margin-bottom: 0.5rem;
+    font-size: 1.5rem;
+}
+
+.post-preview h2 a {
+    color: var(--accent-color);
+    text-decoration: none;
+}
+
+.post-preview h2 a:hover {
+    text-decoration: underline;
+}
+
+.post-meta {
+    font-size: 0.75rem;
+    color: var(--text-dim);
+    margin-bottom: 1.5rem;
+    text-transform: lowercase;
+    letter-spacing: 0.1em;
+}
+
+.post-meta .separator {
+    margin: 0 0.75rem;
+    opacity: 0.5;
+}
+
+.post-excerpt {
+    color: var(--text-dim);
+    max-height: 6em;
+    overflow: hidden;
+    position: relative;
+    line-height: 1.5;
+    text-align: left;
+}
+
+.post-excerpt p {
+    margin-bottom: 0.5rem;
+}
+
+.post-excerpt::after {
+    content: '';
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    height: 2em;
+    background: linear-gradient(transparent, var(--bg-color));
+}
+
+.no-posts {
+    color: var(--text-dim);
+    text-align: center;
+    padding: 2rem;
+}
+
+/* Single post */
+.post-full {
+    margin-bottom: 2rem;
+}
+
+.post-header {
+    margin-bottom: 3rem;
+    text-align: center;
+}
+
+.post-header h1 {
+    color: var(--accent-color);
+    margin-bottom: 1rem;
+    font-size: 1.75rem;
+}
+
+.post-header .post-meta {
+    margin-bottom: 0;
+}
+
+.post-content {
+    margin-bottom: 2rem;
+}
+
+.post-content h1,
+.post-content h2,
+.post-content h3,
+.post-content h4 {
+    color: var(--accent-color);
+    margin: 1.5rem 0 1rem;
+    font-size: 1.1rem;
+}
+
+.post-content h1 {
+    font-size: 1.25rem;
+}
+
+.post-content p {
+    margin-bottom: 1rem;
+}
+
+.post-content a {
+    color: var(--accent-color);
+}
+
+.post-content code {
+    background-color: var(--bg-elevated);
+    padding: 0.15rem 0.4rem;
+    font-size: 0.9em;
+    color: var(--accent-color);
+}
+
+.post-content pre {
+    background-color: var(--bg-elevated);
+    padding: 1rem;
+    overflow-x: auto;
+    margin: 1rem 0;
+}
+
+.post-content pre code {
+    padding: 0;
+    background: none;
+    color: var(--text-color);
+}
+
+.post-content img {
+    max-width: 100%;
+    height: auto;
+    margin: 1rem 0;
+}
+
+.post-content audio,
+.post-content video {
+    max-width: 100%;
+    margin: 1rem 0;
+}
+
+.post-content blockquote {
+    border-left: 2px solid var(--accent-color);
+    padding-left: 1rem;
+    margin: 1rem 0;
+    color: var(--text-dim);
+}
+
+.post-content ul,
+.post-content ol {
+    margin: 1rem 0;
+    padding-left: 2rem;
+}
+
+.post-content li {
+    margin-bottom: 0.5rem;
+}
+
+/* Comments */
+.comments {
+    margin-top: 3rem;
+    padding-top: 2rem;
+}
+
+.comments h2 {
+    margin-bottom: 1.5rem;
+    color: var(--accent-color);
+    text-align: center;
+}
+
+.comment {
+    margin-bottom: 1.5rem;
+    padding: 1rem;
+    background-color: var(--bg-elevated);
+}
+
+.comment-header {
+    font-size: 0.875rem;
+    margin-bottom: 0.75rem;
+    display: flex;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+}
+
+.comment-author {
+    color: var(--accent-color);
+}
+
+.comment-date {
+    color: var(--text-dim);
+}
+
+.comment-content {
+    white-space: pre-wrap;
+    color: var(--text-color);
+}
+
+.comment-form {
+    margin-top: 2rem;
+}
+
+.comment-form h3 {
+    margin-bottom: 1rem;
+    color: var(--text-color);
+    text-align: center;
+}
+
+.comment-form textarea {
+    width: 100%;
+    padding: 0.75rem;
+    font-family: inherit;
+    font-size: 1rem;
+    background-color: var(--bg-elevated);
+    color: var(--text-color);
+    border: 1px solid var(--border-color);
+    resize: vertical;
+    min-height: 100px;
+}
+
+.comment-form textarea:focus {
+    outline: none;
+    border-color: var(--accent-color);
+}
+
+.comment-form textarea::placeholder {
+    color: var(--text-dim);
+}
+
+.comment-form textarea:invalid:not(:focus):not(:placeholder-shown) {
+    border-color: var(--error-color);
+}
+
+.comment-form .form-footer {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-top: 1rem;
+}
+
+.comment-form .form-message,
+.comment-form .form-error {
+    font-size: 0.875rem;
+    opacity: 0;
+    transition: opacity 0.3s;
+}
+
+.comment-form .form-message {
+    color: var(--accent-color);
+}
+
+.comment-form .form-error {
+    color: var(--error-color);
+}
+
+.comment-form .form-message.visible,
+.comment-form .form-error.visible {
+    opacity: 1;
+}
+
+.comment-form button {
+    padding: 0.5rem 1.5rem;
+    font-family: inherit;
+    font-size: 0.875rem;
+    background-color: transparent;
+    color: var(--accent-color);
+    border: 1px solid var(--accent-color);
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.comment-form button:hover {
+    background-color: var(--accent-color);
+    color: var(--bg-color);
+}
+
+/* Error page */
+.error-page {
+    text-align: center;
+    padding: 4rem 1rem;
+}
+
+.error-page h1 {
+    font-size: 4rem;
+    color: var(--accent-color);
+    margin-bottom: 1rem;
+}
+
+.error-page p {
+    margin-bottom: 2rem;
+    color: var(--text-dim);
+}
+
+/* Footer */
+footer {
+    padding: 1.5rem 1rem;
+    text-align: center;
+    color: var(--text-dim);
+    font-size: 0.75rem;
+}
+
+footer a {
+    color: var(--text-dim);
+}
+
+footer a:hover {
+    color: var(--accent-color);
+}

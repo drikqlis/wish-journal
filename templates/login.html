@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Wish Journal</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    <link rel="icon" type="image/svg+xml" href="{{ url_for('static', filename='favicon.ico') }}">
+</head>
+<body class="login-page">
+    <div class="login-container">
+        <pre class="ascii-header">
+__        ___     _           _                              _ 
+\ \      / (_)___| |__       | | ___  _   _ _ __ _ __   __ _| |
+ \ \ /\ / /| / __| '_ \   _  | |/ _ \| | | | '__| '_ \ / _` | |
+  \ V  V / | \__ \ | | | | |_| | (_) | |_| | |  | | | | (_| | |
+   \_/\_/  |_|___/_| |_|  \___/ \___/ \__,_|_|  |_| |_|\__,_|_|
+</pre>
+
+        <div class="login-error-container">
+            <span class="login-error" id="login-error"></span>
+        </div>
+
+        <form method="POST" action="{{ url_for('auth.login') }}" class="login-form" id="login-form">
+            <input type="password" name="password" autofocus autocomplete="current-password" placeholder="" id="password-input">
+        </form>
+    </div>
+
+    <footer>
+        Nie napalaj się na zbyt wiele
+    </footer>
+
+    <script>
+    // Client-side validation to prevent browser default message
+    document.getElementById('login-form').addEventListener('submit', function(e) {
+        const passwordInput = document.getElementById('password-input');
+        const errorElement = document.getElementById('login-error');
+        if (!passwordInput.value.trim()) {
+            e.preventDefault();
+            passwordInput.style.borderColor = 'var(--error-color)';
+            errorElement.textContent = 'puste nie przejdzie';
+            errorElement.classList.add('visible');
+            setTimeout(() => {
+                passwordInput.style.borderColor = '';
+                errorElement.classList.remove('visible');
+            }, 3000);
+        }
+    });
+    </script>
+
+    {% if show_error %}
+    <script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const errorMessages = [
+                'Pudło',
+                'Źle',
+                'Błąd',
+                'Próbuj dalej',
+                'Hmmm',
+                'Nie',
+                'Niepoprawne',
+                'Niestety nie',
+                'Schlebiasz mi, ale nie',
+                'Nie tym razem',
+                'Spróbuj ponownie',
+                'To nie to',
+                'Prawie',
+                'Blisko, ale nie',
+                'Nie ma mowy',
+                'Nope',
+                'No nie',
+                'Pomyłka',
+                'Niestety',
+                'Eee nie',
+                'Chybione',
+                'Nietrafione',
+                'Nie ma opcji',
+                'Mija się z prawdą',
+                'To nie zadziała',
+                'Nie tak',
+                'Spróbuj czegoś innego',
+                'Nie pójdzie',
+                'Odpada',
+                'Nie teraz',
+                'Może innym razem',
+                'Nie zgadza się',
+                'Nie pasuje',
+                'Mylisz się',
+                'Nie tędy droga',
+                'Pomyłka',
+                'Nietrafiony wybór',
+                'To nie to',
+                'Nie o to chodziło',
+                'Nie jestem w nastroju',
+                'Ehh, nie',
+                'No weź',
+                'Nie to',
+                'Lepiej spróbuj jeszcze raz',
+                'To nie jest to',
+                'Co ty',
+                'Kto to widział',
+                'Wiesz ty co',
+                'Wstydź się',
+                'Przeginasz',
+                'Spierdalaj',
+                'Oho! Nie, ciągle źle',
+                'Teraz to już nawet nie masz pomysłu',
+                'Zajęte',
+                'Kusisz, ale nie',
+                'To nie takie proste',
+                'Nie wpisuj mi tu takich rzeczy',
+                'Obrzydliwe',
+                'Nie ze mną te numery',
+                'Weź idź',
+                'O czym ty myślisz',
+                'Eeewww',
+                'Wynocha',
+                'Ktoś ty',
+                'Przestań'
+            ];
+
+            const errorElement = document.getElementById('login-error');
+            const randomMessage = errorMessages[Math.floor(Math.random() * errorMessages.length)];
+            errorElement.textContent = randomMessage;
+            errorElement.classList.add('visible');
+
+            setTimeout(() => {
+                errorElement.classList.remove('visible');
+            }, 3000);
+        });
+    </script>
+    {% endif %}
+</body>
+</html>

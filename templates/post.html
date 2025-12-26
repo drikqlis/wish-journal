@@ -1,0 +1,71 @@
+{% extends 'base.html' %}
+
+{% block title %}{{ post.title }} - Wish Journal{% endblock %}
+
+{% block content %}
+<article class="post-full">
+    <header class="post-header">
+        <h1>{{ post.title }}</h1>
+        <div class="post-meta">
+            <span class="author">{{ post.author }}</span>
+            <span class="separator">|</span>
+            <span class="date">{{ post.date | format_date }}</span>
+        </div>
+    </header>
+
+    <div class="post-content">
+        {{ post.content_html | safe }}
+    </div>
+</article>
+
+<section class="comments">
+    <h2>Myśli ({{ comments | length }})</h2>
+
+    {% for comment in comments %}
+    <div class="comment">
+        <div class="comment-header">
+            <span class="comment-author">{{ comment.first_name }}</span>
+            <span class="comment-date">{{ comment.display_date }}</span>
+        </div>
+        <div class="comment-content">{{ comment.content }}</div>
+    </div>
+    {% endfor %}
+
+    <div class="comment-form" id="comment-form">
+        <h3>Co o tym myślisz, {{ g.user['first_name'] }}?</h3>
+        <form method="POST" action="{{ url_for('main.add_comment', slug=post.slug) }}#comment-form">
+            <input type="hidden" name="csrf_token" value="{{ csrf_token }}">
+            <textarea name="content" rows="4" placeholder="..."></textarea>
+            <div class="form-footer">
+                <span class="form-message" id="form-message">zapisano</span>
+                <span class="form-error" id="form-error">puste nie przejdzie</span>
+                <button type="submit">wyślij</button>
+            </div>
+        </form>
+    </div>
+</section>
+
+<script>
+document.querySelector('#comment-form form').addEventListener('submit', function(e) {
+    const textarea = this.querySelector('textarea');
+    const errorMsg = document.getElementById('form-error');
+    if (!textarea.value.trim()) {
+        e.preventDefault();
+        textarea.style.borderColor = 'var(--error-color)';
+        errorMsg.classList.add('visible');
+        setTimeout(() => {
+            textarea.style.borderColor = '';
+            errorMsg.classList.remove('visible');
+        }, 2000);
+    }
+});
+
+{% if show_success %}
+document.addEventListener('DOMContentLoaded', function() {
+    const msg = document.getElementById('form-message');
+    msg.classList.add('visible');
+    setTimeout(() => msg.classList.remove('visible'), 3000);
+});
+{% endif %}
+</script>
+{% endblock %}
