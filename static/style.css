@@ -44,7 +44,7 @@ body {
     background-color: var(--bg-color);
     color: var(--text-color);
     line-height: 1.7;
-    min-height: 100vh;
+    min-height: 100dvh;
     display: flex;
     flex-direction: column;
     forced-color-adjust: none;
@@ -101,7 +101,6 @@ main {
     margin: 0 auto;
     padding: 2rem 1rem;
     width: 100%;
-    min-height: calc(100vh - 12rem);
 }
 
 /* Login page */
@@ -117,7 +116,6 @@ main {
     align-items: center;
     text-align: center;
     padding: 2rem;
-    min-height: calc(100vh - 10rem);
 }
 
 .login-form {
