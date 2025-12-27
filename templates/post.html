@@ -67,5 +67,145 @@ document.addEventListener('DOMContentLoaded', function() {
     setTimeout(() => msg.classList.remove('visible'), 3000);
 });
 {% endif %}
+
+// Custom Audio Player
+document.addEventListener('DOMContentLoaded', function() {
+    const audioElements = document.querySelectorAll('.post-content audio');
+
+    audioElements.forEach(audio => {
+        const wrapper = document.createElement('div');
+        wrapper.className = 'audio-player';
+
+        // Get metadata from data attributes
+        const title = audio.getAttribute('data-title') || 'Bez tytułu';
+        const artist = audio.getAttribute('data-artist') || 'Nieznany wykonawca';
+        const albumArt = audio.getAttribute('data-artwork');
+
+        // Build player HTML
+        let playerHTML = '';
+
+        if (albumArt) {
+            playerHTML += `<div class="audio-album-art"><img src="${albumArt}" alt="${title}"></div>`;
+        }
+
+        playerHTML += `
+        <div class="audio-player-info">
+            <div class="audio-metadata">
+                <div class="audio-title">${title}</div>
+                <div class="audio-artist">${artist}</div>
+            </div>
+            <div class="audio-controls">
+                <div class="audio-progress-container">
+                    <span class="audio-time audio-current">0:00</span>
+                    <div class="audio-progress">
+                        <div class="audio-progress-bar"></div>
+                    </div>
+                    <span class="audio-time audio-duration">0:00</span>
+                </div>
+                <div class="audio-buttons">
+                    <button class="audio-button audio-play">odtwórz</button>
+                    <div class="audio-volume-container">
+                        <span class="audio-volume-icon">głośność</span>
+                        <input type="range" class="audio-volume" min="0" max="100" value="100">
+                    </div>
+                </div>
+            </div>
+        </div>`;
+
+        wrapper.innerHTML = playerHTML;
+        audio.parentNode.insertBefore(wrapper, audio);
+        wrapper.appendChild(audio);
+
+        // Get elements
+        const playBtn = wrapper.querySelector('.audio-play');
+        const progressBar = wrapper.querySelector('.audio-progress-bar');
+        const progress = wrapper.querySelector('.audio-progress');
+        const currentTime = wrapper.querySelector('.audio-current');
+        const duration = wrapper.querySelector('.audio-duration');
+        const volumeSlider = wrapper.querySelector('.audio-volume');
+
+        // Format time
+        function formatTime(seconds) {
+            const mins = Math.floor(seconds / 60);
+            const secs = Math.floor(seconds % 60);
+            return `${mins}:${secs.toString().padStart(2, '0')}`;
+        }
+
+        // Update progress
+        audio.addEventListener('timeupdate', () => {
+            const percent = (audio.currentTime / audio.duration) * 100;
+            progressBar.style.width = percent + '%';
+            currentTime.textContent = formatTime(audio.currentTime);
+        });
+
+        // Update duration - try multiple events to catch it
+        const updateDuration = () => {
+            if (!isNaN(audio.duration) && isFinite(audio.duration)) {
+                duration.textContent = formatTime(audio.duration);
+            }
+        };
+
+        audio.addEventListener('loadedmetadata', updateDuration);
+        audio.addEventListener('loadeddata', updateDuration);
+        audio.addEventListener('canplay', updateDuration);
+        audio.addEventListener('durationchange', updateDuration);
+
+        // Force load metadata
+        audio.load();
+
+        // Play/Pause
+        playBtn.addEventListener('click', () => {
+            if (audio.paused) {
+                audio.play();
+                playBtn.textContent = 'pauza';
+            } else {
+                audio.pause();
+                playBtn.textContent = 'odtwórz';
+            }
+        });
+
+        // Reset on end
+        audio.addEventListener('ended', () => {
+            playBtn.textContent = 'odtwórz';
+            progressBar.style.width = '0%';
+        });
+
+        // Seek by clicking
+        progress.addEventListener('click', (e) => {
+            const rect = progress.getBoundingClientRect();
+            const percent = (e.clientX - rect.left) / rect.width;
+            audio.currentTime = percent * audio.duration;
+        });
+
+        // Seek by dragging
+        let isDragging = false;
+
+        const seek = (e) => {
+            const rect = progress.getBoundingClientRect();
+            const percent = Math.max(0, Math.min(1, (e.clientX - rect.left) / rect.width));
+            audio.currentTime = percent * audio.duration;
+        };
+
+        progress.addEventListener('mousedown', (e) => {
+            isDragging = true;
+            seek(e);
+        });
+
+        document.addEventListener('mousemove', (e) => {
+            if (isDragging) {
+                seek(e);
+            }
+        });
+
+        document.addEventListener('mouseup', () => {
+            isDragging = false;
+        });
+
+        // Volume control
+        volumeSlider.addEventListener('input', (e) => {
+            audio.volume = e.target.value / 100;
+        });
+    });
+});
 </script>
 {% endblock %}
