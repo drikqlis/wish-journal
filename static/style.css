@@ -545,7 +545,8 @@ main {
     display: flex;
     gap: 1rem;
     align-items: center;
-    justify-content: space-between;
+    justify-content: center;
+    position: relative;
 }
 
 .audio-button {
@@ -595,6 +596,8 @@ main {
 
 .audio-download {
     flex-shrink: 0;
+    position: absolute;
+    right: 0;
 }
 
 .audio-download img {
@@ -611,6 +614,8 @@ main {
     align-items: center;
     max-width: 120px;
     flex: 1;
+    position: absolute;
+    left: 0;
 }
 
 .audio-volume-icon-btn {
@@ -735,6 +740,46 @@ main {
     background: transparent;
     cursor: pointer;
     border: none;
+}
+
+/* Adjust layout for medium screens - hide volume slider */
+@media (max-width: 500px) {
+    .audio-volume-container {
+        position: absolute;
+        left: 0;
+        max-width: 30px;
+        transition: max-width 0.15s ease;
+        overflow: visible;
+    }
+
+    .audio-volume-container:hover,
+    .audio-volume-container:focus-within,
+    .audio-volume-container:active {
+        max-width: 100px;
+    }
+
+    .audio-volume-track {
+        opacity: 0;
+        pointer-events: none;
+        transition: opacity 0.2s ease 0.3s, width 0s ease 0.5s;
+        width: 0;
+    }
+
+    .audio-volume-container:hover .audio-volume-track,
+    .audio-volume-container:focus-within .audio-volume-track,
+    .audio-volume-container:active .audio-volume-track {
+        opacity: 1;
+        pointer-events: auto;
+        width: auto;
+        transition: opacity 0.15s ease, width 0s;
+    }
+
+    /* Keep slider visible when actively being used */
+    .audio-volume:active ~ .audio-volume-track,
+    .audio-volume:focus ~ .audio-volume-track {
+        opacity: 1;
+        pointer-events: auto;
+    }
 }
 
 /* Adjust layout for smaller screens */
