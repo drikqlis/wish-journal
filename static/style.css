@@ -1,12 +1,15 @@
+@import url('https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&display=swap');
+
 :root {
     --bg-color: #0a0a0a;
     --bg-elevated: #0f0e14;
-    --text-color: #9966CC;
-    --text-dim: #664499;
-    --accent-color: #BB88EE;
-    --accent-dim: #8855bb;
-    --error-color: #CC6666;
+    --text-color: #B388EE;
+    --text-dim: #8866CC;
+    --accent-color: #D4A5FF;
+    --accent-dim: #B388EE;
+    --error-color: #DD7777;
     --border-color: #221a2e;
+    color-scheme: dark;
 }
 
 * {
@@ -15,19 +18,37 @@
     padding: 0;
 }
 
+::selection {
+    background-color: var(--accent-dim);
+    color: var(--bg-color);
+}
+
+::-moz-selection {
+    background-color: var(--accent-dim);
+    color: var(--bg-color);
+}
+
 /* Force dark color scheme for form controls */
 input, textarea, select, button {
     color-scheme: dark;
 }
 
+html {
+    background-color: #0a0a0a;
+    color-scheme: dark;
+}
+
 body {
-    font-family: 'Courier New', Courier, monospace;
+    font-family: 'Space Mono', 'Courier New', Courier, monospace;
     background-color: var(--bg-color);
     color: var(--text-color);
     line-height: 1.6;
     min-height: 100vh;
     display: flex;
     flex-direction: column;
+    forced-color-adjust: none;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
 }
 
 a {
@@ -245,10 +266,11 @@ main {
 
 .post-excerpt {
     color: var(--text-dim);
-    max-height: 6em;
+    max-height: 10em;
     overflow: hidden;
     position: relative;
-    line-height: 1.5;
+    line-height: 1.8;
+    font-size: 1.05rem;
     text-align: left;
 }
 

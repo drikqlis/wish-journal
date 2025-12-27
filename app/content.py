@@ -77,10 +77,10 @@ def load_posts() -> None:
             md.reset()
             content_html = md.convert(body)
 
-            # Create excerpt (first 300 chars of raw, then render)
+            # Create excerpt (first 500 chars of raw, then render)
             excerpt_raw = body.strip()
-            if len(excerpt_raw) > 300:
-                excerpt_raw = excerpt_raw[:300].rsplit(" ", 1)[0] + "..."
+            if len(excerpt_raw) > 500:
+                excerpt_raw = excerpt_raw[:500].rsplit(" ", 1)[0] + "..."
             md.reset()
             excerpt_html = md.convert(excerpt_raw)
 
