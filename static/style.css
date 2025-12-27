@@ -2,7 +2,7 @@
 
 :root {
     --bg-color: #0a0a0a;
-    --bg-elevated: #0f0e14;
+    --bg-elevated: #100f15;
     --text-color: #B388EE;
     --text-dim: #8866CC;
     --accent-color: #D4A5FF;
@@ -60,7 +60,7 @@ a:hover {
     text-decoration: underline;
 }
 
-header {
+.header-top {
     padding: 1.5rem 1rem 0.5rem;
 }
 
@@ -73,33 +73,14 @@ header {
 }
 
 .ascii-header {
-    font-size: 0.55rem;
+    font-size: clamp(0.4rem, 2.4vw, 1rem);
     line-height: 1.15;
-    color: var(--accent-color);
+    color: var(--text-color);
     text-align: center;
     white-space: pre;
     overflow: hidden;
     margin-bottom: 0;
     padding-bottom: 0.5rem;
-    transform-origin: center center;
-}
-
-@media (max-width: 420px) {
-    .ascii-header {
-        transform: scale(0.95);
-    }
-}
-
-@media (max-width: 380px) {
-    .ascii-header {
-        transform: scale(0.85);
-    }
-}
-
-@media (max-width: 320px) {
-    .ascii-header {
-        transform: scale(0.75);
-    }
 }
 
 .ascii-header a {
@@ -109,25 +90,7 @@ header {
 
 .ascii-header a:hover {
     text-decoration: none;
-    color: var(--text-color);
-}
-
-@media (min-width: 450px) {
-    .ascii-header {
-        font-size: 0.65rem;
-    }
-}
-
-@media (min-width: 500px) {
-    .ascii-header {
-        font-size: 0.75rem;
-    }
-}
-
-@media (min-width: 768px) {
-    .ascii-header {
-        font-size: 0.9rem;
-    }
+    color: var(--accent-color);
 }
 
 main {
@@ -237,11 +200,6 @@ main {
     text-align: center;
 }
 
-.post-preview h2 {
-    margin-bottom: 0.5rem;
-    font-size: 1.5rem;
-}
-
 .post-preview h2 a {
     color: var(--accent-color);
     text-decoration: none;
@@ -255,7 +213,6 @@ main {
     font-size: 0.75rem;
     color: var(--text-dim);
     margin-bottom: 1.5rem;
-    text-transform: lowercase;
     letter-spacing: 0.1em;
 }
 
@@ -267,10 +224,10 @@ main {
 .post-excerpt {
     color: var(--text-dim);
     max-height: 10em;
-    overflow: hidden;
+    overflow: clip;
     position: relative;
     line-height: 1.8;
-    font-size: 1.05rem;
+    font-size: 1rem;
     text-align: left;
 }
 
@@ -284,7 +241,7 @@ main {
     bottom: 0;
     left: 0;
     right: 0;
-    height: 2em;
+    height: 4em;
     background: linear-gradient(transparent, var(--bg-color));
 }
 
@@ -304,10 +261,18 @@ main {
     text-align: center;
 }
 
-.post-header h1 {
+.post-header h1,
+.post-preview h1 {
     color: var(--accent-color);
     margin-bottom: 1rem;
     font-size: 1.75rem;
+}
+
+@media (max-width: 480px) {
+    .post-header h1,
+    .post-preview h1 {
+        font-size: 1.35rem;
+    }
 }
 
 .post-header .post-meta {
@@ -317,7 +282,7 @@ main {
 .post-content {
     margin-bottom: 2rem;
     line-height: 1.8;
-    font-size: 1.05rem;
+    font-size: 1rem;
     margin-left: auto;
     margin-right: auto;
 }
@@ -328,12 +293,63 @@ main {
 .post-content h4 {
     color: var(--accent-color);
     margin: 2rem 0 1.25rem;
-    font-size: 1.1rem;
     line-height: 1.4;
 }
 
-.post-content h1 {
-    font-size: 1.25rem;
+.post-content h1,
+.post-excerpt h1 {
+    font-size: 1.4rem;
+}
+
+@media (max-width: 480px) {
+    .post-content h1,
+    .post-excerpt h1 {
+        font-size: 1.2rem;
+    }
+}
+
+.post-content h2,
+.post-excerpt h2 {
+    font-size: 1.3rem;
+}
+
+@media (max-width: 480px) {
+    .post-content h2,
+    .post-excerpt h2 {
+        font-size: 1.15rem;
+    }
+}
+
+.post-content h3,
+.post-excerpt h3 {
+    font-size: 1.1rem;
+}
+
+@media (max-width: 480px) {
+    .post-content h3,
+    .post-excerpt h3 {
+        font-size: 1.05rem;
+    }
+}
+
+.post-content h4,
+.post-excerpt h4 {
+    font-size: 1.1rem;
+}
+
+@media (max-width: 480px) {
+    .post-content h4,
+    .post-excerpt h4 {
+        font-size: 0.8rem;
+    }
+}
+
+.post-excerpt h1,
+.post-excerpt h2,
+.post-excerpt h3,
+.post-excerpt h4 {
+    margin: 2rem 0 1.25rem;
+    line-height: 1.4;
 }
 
 .post-content p {
