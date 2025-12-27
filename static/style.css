@@ -456,11 +456,13 @@ main {
     font-size: 1.05rem;
     margin-bottom: 0.25rem;
     font-weight: 700;
+    font-family: 'Fira Code', monospace;
 }
 
 .audio-artist {
     color: var(--text-dim);
     font-size: 0.9rem;
+    font-family: 'Fira Code', monospace;
 }
 
 .audio-controls {
@@ -483,6 +485,7 @@ main {
     display: flex;
     align-items: center;
     flex-shrink: 0;
+    font-family: 'Fira Code', monospace;
 }
 
 .audio-progress {
