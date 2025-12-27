@@ -1,4 +1,4 @@
-@import url('https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Exo+2:wght@400;700&family=Fira+Code:wght@400;700&display=swap');
 
 :root {
     --bg-color: #0a0a0a;
@@ -36,13 +36,14 @@ input, textarea, select, button {
 html {
     background-color: #0a0a0a;
     color-scheme: dark;
+    font-size: 100%;
 }
 
 body {
-    font-family: 'Space Mono', 'Courier New', Courier, monospace;
+    font-family: 'Exo 2', sans-serif;
     background-color: var(--bg-color);
     color: var(--text-color);
-    line-height: 1.6;
+    line-height: 1.7;
     min-height: 100vh;
     display: flex;
     flex-direction: column;
@@ -81,6 +82,7 @@ a:hover {
     overflow: hidden;
     margin-bottom: 0;
     padding-bottom: 0.5rem;
+    font-weight: 700;
 }
 
 .ascii-header a {
@@ -210,7 +212,7 @@ main {
 }
 
 .post-meta {
-    font-size: 0.75rem;
+    font-size: 0.95rem;
     color: var(--text-dim);
     margin-bottom: 1.5rem;
     letter-spacing: 0.1em;
@@ -227,8 +229,10 @@ main {
     overflow: clip;
     position: relative;
     line-height: 1.8;
-    font-size: 1rem;
+    font-size: 1.2rem;
     text-align: left;
+    text-wrap: pretty;
+    hyphens: auto;
 }
 
 .post-excerpt p {
@@ -265,14 +269,7 @@ main {
 .post-preview h1 {
     color: var(--accent-color);
     margin-bottom: 1rem;
-    font-size: 1.75rem;
-}
-
-@media (max-width: 480px) {
-    .post-header h1,
-    .post-preview h1 {
-        font-size: 1.35rem;
-    }
+    font-size: 2rem;
 }
 
 .post-header .post-meta {
@@ -282,9 +279,11 @@ main {
 .post-content {
     margin-bottom: 2rem;
     line-height: 1.8;
-    font-size: 1rem;
+    font-size: 1.2rem;
     margin-left: auto;
     margin-right: auto;
+    text-wrap: pretty;
+    hyphens: auto;
 }
 
 .post-content h1,
@@ -298,50 +297,22 @@ main {
 
 .post-content h1,
 .post-excerpt h1 {
-    font-size: 1.4rem;
-}
-
-@media (max-width: 480px) {
-    .post-content h1,
-    .post-excerpt h1 {
-        font-size: 1.2rem;
-    }
+    font-size: 1.6rem;
 }
 
 .post-content h2,
 .post-excerpt h2 {
-    font-size: 1.3rem;
-}
-
-@media (max-width: 480px) {
-    .post-content h2,
-    .post-excerpt h2 {
-        font-size: 1.15rem;
-    }
+    font-size: 1.4rem;
 }
 
 .post-content h3,
 .post-excerpt h3 {
-    font-size: 1.1rem;
-}
-
-@media (max-width: 480px) {
-    .post-content h3,
-    .post-excerpt h3 {
-        font-size: 1.05rem;
-    }
+    font-size: 1.3rem;
 }
 
 .post-content h4,
 .post-excerpt h4 {
-    font-size: 1.1rem;
-}
-
-@media (max-width: 480px) {
-    .post-content h4,
-    .post-excerpt h4 {
-        font-size: 0.8rem;
-    }
+    font-size: 1.2rem;
 }
 
 .post-excerpt h1,
@@ -354,6 +325,7 @@ main {
 
 .post-content p {
     margin-bottom: 1.5rem;
+    text-wrap: pretty;
 }
 
 .post-content a {
@@ -361,9 +333,10 @@ main {
 }
 
 .post-content code {
+    font-family: 'Fira Code', monospace;
     background-color: var(--bg-elevated);
     padding: 0.15rem 0.4rem;
-    font-size: 0.9em;
+    font-size: 0.95em;
     color: var(--accent-color);
 }
 
@@ -375,6 +348,7 @@ main {
 }
 
 .post-content pre code {
+    font-family: 'Fira Code', monospace;
     padding: 0;
     background: none;
     color: var(--text-color);
@@ -650,6 +624,7 @@ main {
     padding-left: 1rem;
     margin: 1rem 0;
     color: var(--text-dim);
+    text-wrap: pretty;
 }
 
 .post-content ul,
