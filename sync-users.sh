@@ -33,6 +33,7 @@ tail -n +2 "$CSV_FILE" | while IFS=, read -r first_name last_name username passw
     echo "Processing user: $username ($first_name $last_name)..."
 
     kubectl exec -it deployment/wish-journal -n "$NAMESPACE" -- python3 << EOF
+import hashlib
 import sqlite3
 import bcrypt
 
@@ -46,8 +47,9 @@ password = "$password"
 conn = sqlite3.connect('/data/wish-journal.db')
 cursor = conn.cursor()
 
-# Hash password
+# Hash password and create prefix
 password_hash = bcrypt.hashpw(password.encode('utf-8'), bcrypt.gensalt())
+password_prefix = hashlib.sha256(password.encode('utf-8')).hexdigest()[:8]
 
 # Check if user exists
 cursor.execute('SELECT id FROM users WHERE username = ?', (username,))
@@ -56,15 +58,15 @@ existing_user = cursor.fetchone()
 if existing_user:
     # Update existing user
     cursor.execute(
-        'UPDATE users SET first_name = ?, last_name = ?, password_hash = ? WHERE username = ?',
-        (first_name, last_name, password_hash.decode('utf-8'), username)
+        'UPDATE users SET first_name = ?, last_name = ?, password_hash = ?, password_prefix = ? WHERE username = ?',
+        (first_name, last_name, password_hash.decode('utf-8'), password_prefix, username)
     )
     print(f"User {username} updated!")
 else:
     # Insert new user
     cursor.execute(
-        'INSERT INTO users (first_name, last_name, username, password_hash) VALUES (?, ?, ?, ?)',
-        (first_name, last_name, username, password_hash.decode('utf-8'))
+        'INSERT INTO users (first_name, last_name, username, password_hash, password_prefix) VALUES (?, ?, ?, ?, ?)',
+        (first_name, last_name, username, password_hash.decode('utf-8'), password_prefix)
     )
     print(f"User {username} created!")
 
