@@ -552,6 +552,10 @@ main {
     transition: all 0.2s;
     flex-shrink: 0;
     padding: 0;
+    margin: 0;
+    line-height: 1;
+    width: 24px;
+    height: 24px;
     display: flex;
     align-items: center;
     justify-content: center;
@@ -559,8 +563,8 @@ main {
 }
 
 .audio-button img {
-    width: 20px;
-    height: 20px;
+    width: 24px;
+    height: 24px;
     filter: invert(71%) sepia(13%) saturate(1547%) hue-rotate(215deg) brightness(91%) contrast(89%);
     transition: filter 0.2s;
 }
@@ -611,6 +615,10 @@ main {
     border: none;
     cursor: pointer;
     padding: 0;
+    margin: 0;
+    line-height: 1;
+    width: 24px;
+    height: 24px;
     display: flex;
     align-items: center;
     justify-content: center;
@@ -623,8 +631,8 @@ main {
 }
 
 .audio-volume-icon {
-    width: 20px;
-    height: 20px;
+    width: 24px;
+    height: 24px;
     flex-shrink: 0;
     filter: invert(71%) sepia(13%) saturate(1547%) hue-rotate(215deg) brightness(91%) contrast(89%);
 }
