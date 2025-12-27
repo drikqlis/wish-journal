@@ -63,21 +63,21 @@ header {
     transform-origin: center center;
 }
 
-@media (max-width: 479px) {
+@media (max-width: 420px) {
     .ascii-header {
-        transform: scale(0.85);
+        transform: scale(0.95);
     }
 }
 
 @media (max-width: 380px) {
     .ascii-header {
-        transform: scale(0.75);
+        transform: scale(0.85);
     }
 }
 
 @media (max-width: 320px) {
     .ascii-header {
-        transform: scale(0.65);
+        transform: scale(0.75);
     }
 }
 
@@ -91,7 +91,13 @@ header {
     color: var(--text-color);
 }
 
-@media (min-width: 640px) {
+@media (min-width: 450px) {
+    .ascii-header {
+        font-size: 0.65rem;
+    }
+}
+
+@media (min-width: 500px) {
     .ascii-header {
         font-size: 0.75rem;
     }
@@ -288,6 +294,10 @@ main {
 
 .post-content {
     margin-bottom: 2rem;
+    line-height: 1.8;
+    font-size: 1.05rem;
+    margin-left: auto;
+    margin-right: auto;
 }
 
 .post-content h1,
@@ -295,8 +305,9 @@ main {
 .post-content h3,
 .post-content h4 {
     color: var(--accent-color);
-    margin: 1.5rem 0 1rem;
+    margin: 2rem 0 1.25rem;
     font-size: 1.1rem;
+    line-height: 1.4;
 }
 
 .post-content h1 {
@@ -304,7 +315,7 @@ main {
 }
 
 .post-content p {
-    margin-bottom: 1rem;
+    margin-bottom: 1.5rem;
 }
 
 .post-content a {
@@ -398,6 +409,7 @@ main {
 .comment-content {
     white-space: pre-wrap;
     color: var(--text-color);
+    line-height: 1.7;
 }
 
 .comment-form {
