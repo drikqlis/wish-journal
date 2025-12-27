@@ -383,8 +383,25 @@ main {
     padding: 1.5rem;
     display: grid;
     grid-template-columns: auto 1fr;
-    gap: 1.5rem;
+    grid-template-rows: auto auto;
+    column-gap: 1.5rem;
+    row-gap: 0.75rem;
     align-items: start;
+}
+
+.audio-player-info {
+    grid-column: 2;
+    grid-row: 1;
+}
+
+.audio-controls {
+    grid-column: 2;
+    grid-row: 2;
+}
+
+.audio-album-art {
+    grid-column: 1;
+    grid-row: 1 / -1;
 }
 
 .audio-player-info {
@@ -564,14 +581,46 @@ main {
     background: var(--accent-dim);
 }
 
-/* Hide album art on smaller screens */
+/* Adjust layout for smaller screens */
 @media (max-width: 600px) {
     .audio-player {
-        grid-template-columns: 1fr;
+        display: flex;
+        flex-wrap: wrap;
+        gap: 0;
+        align-items: flex-start;
     }
 
     .audio-album-art {
-        display: none;
+        width: 60px;
+        height: 60px;
+        flex-shrink: 0;
+        margin-right: 1rem;
+    }
+
+    .audio-player-info {
+        flex: 1;
+        min-width: 0;
+    }
+
+    .audio-metadata {
+        display: flex;
+        flex-direction: column;
+        gap: 0.25rem;
+        min-width: 0;
+        justify-content: center;
+    }
+
+    .audio-title,
+    .audio-artist {
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+    }
+
+    .audio-controls {
+        width: 100%;
+        flex-basis: 100%;
+        margin-top: 1rem;
     }
 }
 
