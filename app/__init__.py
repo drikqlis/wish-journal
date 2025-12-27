@@ -33,10 +33,15 @@ def create_app(config: dict | None = None) -> Flask:
     from . import content
     with app.app_context():
         content.load_posts()
+        content.load_footer_messages()
         content.start_watcher(app)
 
     from . import utils
     app.jinja_env.filters["format_date"] = utils.format_date_polish
+
+    @app.context_processor
+    def inject_footer_messages():
+        return {"footer_messages": content.get_footer_messages()}
 
     from flask import render_template
 

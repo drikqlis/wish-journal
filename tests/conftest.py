@@ -34,9 +34,10 @@ To jest testowa tresc wpisu.
         encoding="utf-8",
     )
 
-    # Clear global posts cache before creating new app
+    # Clear global posts and footer messages cache before creating new app
     from app import content
     content._posts_cache = []
+    content._footer_messages = []
 
     app = create_app(
         {
@@ -57,6 +58,7 @@ To jest testowa tresc wpisu.
     # Clean up on teardown
     content.stop_watcher()
     content._posts_cache = []
+    content._footer_messages = []
 
     os.close(db_fd)
     os.unlink(db_path)

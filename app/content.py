@@ -17,6 +17,7 @@ logger = logging.getLogger(__name__)
 _posts_cache: list["Post"] = []
 _cache_lock = threading.Lock()
 _observer: PollingObserver | None = None
+_footer_messages: list[str] = []
 
 
 @dataclass
@@ -151,6 +152,40 @@ def get_media_path(path: str) -> Path | None:
     return None
 
 
+def load_footer_messages() -> None:
+    """Load footer messages from YAML file."""
+    global _footer_messages
+
+    content_path = current_app.config.get("CONTENT_PATH", "/content")
+    messages_file = Path(content_path) / "other" / "footer-messages.yaml"
+
+    default_messages = ["Nie napalaj się na zbyt wiele"]
+
+    if not messages_file.exists():
+        logger.warning(f"Footer messages file does not exist: {messages_file}")
+        _footer_messages = default_messages
+        return
+
+    try:
+        with open(messages_file, "r", encoding="utf-8") as f:
+            data = yaml.safe_load(f)
+            messages = data.get("messages", []) if data else []
+            if messages and isinstance(messages, list):
+                _footer_messages = messages
+                logger.info(f"Loaded {len(messages)} footer messages")
+            else:
+                logger.warning("No messages found in footer-messages.yaml, using defaults")
+                _footer_messages = default_messages
+    except Exception as e:
+        logger.error(f"Error loading footer messages: {e}")
+        _footer_messages = default_messages
+
+
+def get_footer_messages() -> list[str]:
+    """Get the list of footer messages."""
+    return list(_footer_messages) if _footer_messages else ["Nie napalaj się na zbyt wiele"]
+
+
 class PostsEventHandler(FileSystemEventHandler):
     def __init__(self, app: Flask):
         self.app = app
@@ -180,22 +215,64 @@ class PostsEventHandler(FileSystemEventHandler):
             self._schedule_reload()
 
 
+class ContentEventHandler(FileSystemEventHandler):
+    """Handler for footer-messages.yaml and other content root files."""
+    def __init__(self, app: Flask):
+        self.app = app
+        self._debounce_timer: threading.Timer | None = None
+
+    def _reload_footer_messages(self) -> None:
+        with self.app.app_context():
+            load_footer_messages()
+            logger.info("Footer messages reloaded due to filesystem change")
+
+    def _schedule_reload(self) -> None:
+        if self._debounce_timer:
+            self._debounce_timer.cancel()
+        self._debounce_timer = threading.Timer(1.0, self._reload_footer_messages)
+        self._debounce_timer.start()
+
+    def on_created(self, event) -> None:
+        if event.src_path.endswith("footer-messages.yaml"):
+            self._schedule_reload()
+
+    def on_modified(self, event) -> None:
+        if event.src_path.endswith("footer-messages.yaml"):
+            self._schedule_reload()
+
+    def on_deleted(self, event) -> None:
+        if event.src_path.endswith("footer-messages.yaml"):
+            self._schedule_reload()
+
+
 def start_watcher(app: Flask) -> None:
     global _observer
 
     content_path = app.config.get("CONTENT_PATH", "/content")
-    posts_dir = Path(content_path) / "posts"
+    content_dir = Path(content_path)
+    posts_dir = content_dir / "posts"
+    other_dir = content_dir / "other"
 
     if not posts_dir.exists():
         logger.warning(f"Cannot start watcher - posts directory does not exist: {posts_dir}")
         return
 
-    event_handler = PostsEventHandler(app)
     _observer = PollingObserver(timeout=5)
-    _observer.schedule(event_handler, str(posts_dir), recursive=False)
+
+    # Watch posts directory for markdown files
+    posts_handler = PostsEventHandler(app)
+    _observer.schedule(posts_handler, str(posts_dir), recursive=False)
+
+    # Watch content/other directory for footer-messages.yaml
+    if other_dir.exists():
+        content_handler = ContentEventHandler(app)
+        _observer.schedule(content_handler, str(other_dir), recursive=False)
+        logger.info(f"Started polling file watcher on {posts_dir} and {other_dir} (NFS-compatible mode)")
+    else:
+        logger.info(f"Started polling file watcher on {posts_dir} (NFS-compatible mode)")
+
     _observer.daemon = True
     _observer.start()
-    logger.info(f"Started polling file watcher on {posts_dir} (NFS-compatible mode)")
 
 
 def stop_watcher() -> None:

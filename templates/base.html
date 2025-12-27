@@ -37,10 +37,11 @@ __        ___     _           _                              _
     </main>
 
     <footer>
+        {% set random_message = footer_messages | random %}
         {% if g.user %}
-        <a href="{{ url_for('auth.logout') }}">Nie napalaj się na zbyt wiele</a>
+        <a href="{{ url_for('auth.logout') }}">{{ random_message }}</a>
         {% else %}
-        Nie napalaj się na zbyt wiele
+        {{ random_message }}
         {% endif %}
     </footer>
 </body>

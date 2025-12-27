@@ -87,3 +87,28 @@ def test_media_requires_auth(client):
     response = client.get("/media/test.txt")
     assert response.status_code == 302
     assert "/auth/login" in response.location
+
+
+def test_footer_messages_in_template_context(app_with_user, logged_in_client):
+    content_path = app_with_user.config["CONTENT_PATH"]
+    other_dir = Path(content_path) / "other"
+    other_dir.mkdir(exist_ok=True)
+
+    footer_file = other_dir / "footer-messages.yaml"
+    footer_file.write_text(
+        """messages:
+  - Custom footer message
+  - Another custom message
+""",
+        encoding="utf-8",
+    )
+
+    # Reload footer messages
+    from app import content
+    with app_with_user.app_context():
+        content.load_footer_messages()
+
+    response = logged_in_client.get("/")
+    assert response.status_code == 200
+    # Footer should contain one of the custom messages
+    assert b"Custom footer message" in response.data or b"Another custom message" in response.data
