@@ -1,6 +1,6 @@
+import hashlib
 import os
 import sqlite3
-from concurrent.futures import ThreadPoolExecutor, as_completed
 from datetime import datetime
 
 import bcrypt
@@ -36,6 +36,7 @@ def init_db() -> None:
             last_name TEXT NOT NULL,
             username TEXT NOT NULL UNIQUE,
             password_hash TEXT NOT NULL,
+            password_prefix TEXT NOT NULL,
             created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
         );
 
@@ -50,6 +51,7 @@ def init_db() -> None:
 
         CREATE INDEX IF NOT EXISTS idx_comments_post_slug ON comments(post_slug);
         CREATE INDEX IF NOT EXISTS idx_comments_created_at ON comments(created_at);
+        CREATE INDEX IF NOT EXISTS idx_users_password_prefix ON users(password_prefix);
     """)
     db.commit()
 
@@ -67,35 +69,36 @@ def init_app(app: Flask) -> None:
 def create_user(first_name: str, last_name: str, username: str, password: str) -> None:
     db = get_db()
     password_hash = bcrypt.hashpw(password.encode("utf-8"), bcrypt.gensalt())
+    # Store first 8 chars of SHA256 hash as a fast lookup prefix
+    password_prefix = hashlib.sha256(password.encode("utf-8")).hexdigest()[:8]
     db.execute(
-        "INSERT INTO users (first_name, last_name, username, password_hash) VALUES (?, ?, ?, ?)",
-        (first_name, last_name, username, password_hash.decode("utf-8")),
+        "INSERT INTO users (first_name, last_name, username, password_hash, password_prefix) VALUES (?, ?, ?, ?, ?)",
+        (first_name, last_name, username, password_hash.decode("utf-8"), password_prefix),
     )
     db.commit()
 
 
 def get_user_by_password(password: str) -> sqlite3.Row | None:
     db = get_db()
-    users = db.execute("SELECT * FROM users").fetchall()
 
-    def check_password(user):
-        """Check if password matches this user's hash."""
+    # Fast filter: compute password prefix and query only matching users
+    password_prefix = hashlib.sha256(password.encode("utf-8")).hexdigest()[:8]
+    candidates = db.execute(
+        "SELECT * FROM users WHERE password_prefix = ?",
+        (password_prefix,)
+    ).fetchall()
+
+    # No candidates means wrong password
+    if not candidates:
+        return None
+
+    # Only check bcrypt for candidates (usually just 1 user)
+    for user in candidates:
         try:
             if bcrypt.checkpw(password.encode("utf-8"), user["password_hash"].encode("utf-8")):
                 return user
         except Exception:
             pass
-        return None
-
-    # Check passwords in parallel using a thread pool
-    with ThreadPoolExecutor(max_workers=min(len(users), 10)) as executor:
-        futures = {executor.submit(check_password, user): user for user in users}
-        for future in as_completed(futures):
-            result = future.result()
-            if result is not None:
-                # Cancel remaining tasks and return immediately
-                executor.shutdown(wait=False, cancel_futures=True)
-                return result
 
     return None
 
