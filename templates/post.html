@@ -323,12 +323,57 @@ document.addEventListener('DOMContentLoaded', function() {
             updateVolume(e.target.value);
         });
 
-        // Mute/unmute on icon click
+        // Mute/unmute on icon click - with small screen handling
         volumeIconBtn.addEventListener('click', () => {
-            if (audio.volume > 0) {
-                updateVolume(0, false);
+            const volumeContainer = wrapper.querySelector('.audio-volume-container');
+            const volumeTrack = wrapper.querySelector('.audio-volume-track');
+
+            // Check if we're on small screen and slider is hidden
+            const isSmallScreen = window.innerWidth <= 500;
+            const isSliderHidden = isSmallScreen &&
+                window.getComputedStyle(volumeTrack).opacity === '0';
+
+            // On small screen with hidden slider, first click shows the slider
+            // instead of toggling mute
+            if (isSliderHidden) {
+                // Trigger the hover/active state to show the slider
+                volumeContainer.classList.add('volume-revealed');
+                volumeTrack.style.opacity = '1';
+                volumeTrack.style.pointerEvents = 'auto';
+                volumeTrack.style.width = 'auto';
+                volumeTrack.style.transition = 'opacity 0.15s ease';
+
+                // Hide it again after a delay if not interacting
+                setTimeout(() => {
+                    if (!volumeContainer.matches(':hover') &&
+                        !volumeContainer.matches(':focus-within') &&
+                        !volumeContainer.classList.contains('volume-revealed')) {
+                        volumeTrack.style.opacity = '0';
+                        volumeTrack.style.pointerEvents = 'none';
+                        volumeTrack.style.width = '0';
+                    }
+                }, 3000);
+
+                // Remove the class when user interacts or moves away
+                const hideSlider = () => {
+                    volumeContainer.classList.remove('volume-revealed');
+                    if (!volumeContainer.matches(':hover') &&
+                        !volumeContainer.matches(':focus-within')) {
+                        volumeTrack.style.opacity = '0';
+                        volumeTrack.style.pointerEvents = 'none';
+                        volumeTrack.style.width = '0';
+                    }
+                };
+
+                volumeContainer.addEventListener('mouseleave', hideSlider, { once: true });
+                volumeTrack.addEventListener('touchend', hideSlider, { once: true });
             } else {
-                updateVolume(previousVolume, false);
+                // Normal behavior: toggle mute/unmute
+                if (audio.volume > 0) {
+                    updateVolume(0, false);
+                } else {
+                    updateVolume(previousVolume, false);
+                }
             }
         });
 
