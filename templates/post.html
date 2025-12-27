@@ -333,16 +333,16 @@ document.addEventListener('DOMContentLoaded', function() {
         // Detect if device has hover capability (check both hover and pointer media queries)
         const hasHover = window.matchMedia('(hover: hover) and (pointer: fine)').matches;
 
+        // Track active outside click listener for cleanup
+        let outsideClickListener = null;
+
         // Volume icon click behavior
         volumeIconBtn.addEventListener('click', (e) => {
             const volumeContainer = wrapper.querySelector('.audio-volume-container');
             const volumeTrack = wrapper.querySelector('.audio-volume-track');
 
-            // Check if this was a mouse click (not touch)
-            const isMouseClick = e.pointerType === 'mouse' || e.pointerType === '' || e.pointerType === undefined;
-
-            // On PC/mouse clicks: always mute/unmute
-            if (hasHover || isMouseClick) {
+            // On PC/hover-capable devices: always mute/unmute immediately
+            if (hasHover) {
                 if (audio.volume > 0) {
                     updateVolume(0, false);
                 } else {
@@ -351,43 +351,46 @@ document.addEventListener('DOMContentLoaded', function() {
                 return;
             }
 
-            // On touch devices: only show/hide slider, never mute
+            // On touch devices: first tap shows slider, second tap mutes/unmutes
+            // Always prevent propagation to stop outside click handler
+            e.stopPropagation();
+
+            // Check if slider is currently revealed by checking the class
             const isRevealed = volumeContainer.classList.contains('volume-revealed');
 
             if (!isRevealed) {
-                // Show the slider
+                // First tap: Show the slider
                 volumeContainer.classList.add('volume-revealed');
-                volumeTrack.style.opacity = '1';
-                volumeTrack.style.pointerEvents = 'auto';
-                volumeTrack.style.width = 'auto';
-                volumeTrack.style.transition = 'opacity 0.15s ease';
 
-                // Hide after 3 seconds of inactivity
-                const hideTimeout = setTimeout(() => {
-                    volumeContainer.classList.remove('volume-revealed');
-                    volumeTrack.style.opacity = '';
-                    volumeTrack.style.pointerEvents = '';
-                    volumeTrack.style.width = '';
-                }, 3000);
+                // Remove old listener if it exists
+                if (outsideClickListener) {
+                    document.removeEventListener('click', outsideClickListener);
+                }
 
                 // Hide when tapping outside
-                document.addEventListener('click', function outsideClick(e) {
+                outsideClickListener = function(e) {
                     if (!volumeContainer.contains(e.target)) {
-                        clearTimeout(hideTimeout);
                         volumeContainer.classList.remove('volume-revealed');
-                        volumeTrack.style.opacity = '';
-                        volumeTrack.style.pointerEvents = '';
-                        volumeTrack.style.width = '';
-                        document.removeEventListener('click', outsideClick);
+                        document.removeEventListener('click', outsideClickListener);
+                        outsideClickListener = null;
                     }
-                }, { once: true });
+                };
+
+                // Add listener on next tick to avoid immediate trigger
+                setTimeout(() => {
+                    document.addEventListener('click', outsideClickListener);
+                }, 10);
             } else {
-                // Hide the slider
-                volumeContainer.classList.remove('volume-revealed');
-                volumeTrack.style.opacity = '';
-                volumeTrack.style.pointerEvents = '';
-                volumeTrack.style.width = '';
+                // Second tap: Mute/unmute (slider is already visible)
+                if (audio.volume > 0) {
+                    updateVolume(0, false);
+                } else {
+                    updateVolume(previousVolume, false);
+                }
             }
+
+            // Remove focus from button to prevent stuck visual states
+            setTimeout(() => volumeIconBtn.blur(), 100);
         });
 
         // Initialize volume bar

@@ -635,10 +635,15 @@ main {
     justify-content: center;
     flex-shrink: 0;
     transition: opacity 0.2s;
+    outline: none;
 }
 
 .audio-volume-icon-btn:hover {
     opacity: 0.8;
+}
+
+.audio-volume-icon-btn:focus {
+    outline: none;
 }
 
 .audio-volume-icon {
@@ -769,8 +774,9 @@ main {
 }
 
 .audio-volume-container:hover .audio-volume-track,
-.audio-volume-container:focus-within .audio-volume-track,
-.audio-volume-container:active .audio-volume-track {
+.audio-volume-container:has(.audio-volume:focus) .audio-volume-track,
+.audio-volume-container:active .audio-volume-track,
+.audio-volume-container.volume-revealed .audio-volume-track {
     opacity: 1;
     pointer-events: auto;
     width: auto;
@@ -792,14 +798,17 @@ main {
 }
 
 .audio-volume-container:hover .audio-volume-track::before,
-.audio-volume-container:focus-within .audio-volume-track::before,
+.audio-volume-container:has(.audio-volume:focus) .audio-volume-track::before,
 .audio-volume-container:active .audio-volume-track::before,
+.audio-volume-container.volume-revealed .audio-volume-track::before,
 .audio-volume-container:hover .audio-volume-track::after,
-.audio-volume-container:focus-within .audio-volume-track::after,
+.audio-volume-container:has(.audio-volume:focus) .audio-volume-track::after,
 .audio-volume-container:active .audio-volume-track::after,
+.audio-volume-container.volume-revealed .audio-volume-track::after,
 .audio-volume-container:hover .audio-volume-bar,
-.audio-volume-container:focus-within .audio-volume-bar,
-.audio-volume-container:active .audio-volume-bar {
+.audio-volume-container:has(.audio-volume:focus) .audio-volume-bar,
+.audio-volume-container:active .audio-volume-bar,
+.audio-volume-container.volume-revealed .audio-volume-bar {
     display: block;
 }
 
