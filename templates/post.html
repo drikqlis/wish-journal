@@ -24,7 +24,7 @@
     {% for comment in comments %}
     <div class="comment">
         <div class="comment-header">
-            <span class="comment-author">{{ comment.first_name }}</span>
+            <span class="comment-author">{{ comment.username }}</span>
             <span class="comment-date">{{ comment.display_date }}</span>
         </div>
         <div class="comment-content">{{ comment.content }}</div>
@@ -37,8 +37,10 @@
             <input type="hidden" name="csrf_token" value="{{ csrf_token }}">
             <textarea name="content" rows="4" placeholder="..."></textarea>
             <div class="form-footer">
-                <span class="form-message" id="form-message">zapisano</span>
-                <span class="form-error" id="form-error">puste nie przejdzie</span>
+                <div class="form-messages">
+                    <span class="form-message" id="form-message">Zapisano</span>
+                    <span class="form-error" id="form-error">Puste nie przejdzie</span>
+                </div>
                 <button type="submit">wyślij</button>
             </div>
         </form>
@@ -46,25 +48,34 @@
 </section>
 
 <script>
+const formMessage = document.getElementById('form-message');
+const formError = document.getElementById('form-error');
+
+// Helper function to show a message and hide the other
+function showMessage(msgToShow, msgToHide) {
+    msgToHide.classList.remove('visible');
+    msgToShow.classList.add('visible');
+}
+
 document.querySelector('#comment-form form').addEventListener('submit', function(e) {
     const textarea = this.querySelector('textarea');
-    const errorMsg = document.getElementById('form-error');
-    if (!textarea.value.trim()) {
+    if (!textarea.value || !textarea.value.trim()) {
         e.preventDefault();
+        e.stopPropagation();
         textarea.style.borderColor = 'var(--error-color)';
-        errorMsg.classList.add('visible');
+        showMessage(formError, formMessage);
         setTimeout(() => {
             textarea.style.borderColor = '';
-            errorMsg.classList.remove('visible');
-        }, 2000);
+            formError.classList.remove('visible');
+        }, 3000);
+        return false;
     }
 });
 
 {% if show_success %}
 document.addEventListener('DOMContentLoaded', function() {
-    const msg = document.getElementById('form-message');
-    msg.classList.add('visible');
-    setTimeout(() => msg.classList.remove('visible'), 3000);
+    showMessage(formMessage, formError);
+    setTimeout(() => formMessage.classList.remove('visible'), 3000);
 });
 {% endif %}
 

@@ -121,48 +121,73 @@ main {
 .login-form {
     margin-top: 3rem;
     width: 100%;
-    max-width: 400px;
+    max-width: 600px;
 }
 
-.login-form input {
+.terminal-input-wrapper {
+    position: relative;
     width: 100%;
-    max-width: 400px;
-    padding: 0.75rem;
-    font-family: inherit;
-    font-size: 1rem;
-    background-color: var(--bg-elevated);
-    color: var(--text-color);
-    border: 1px solid var(--border-color);
-    text-align: center;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 2rem;
 }
 
-.login-form input:focus {
+.terminal-input {
+    background: transparent;
+    border: none;
     outline: none;
-    border-color: var(--accent-color);
+    color: var(--text-color);
+    font-family: 'Fira Code', monospace;
+    font-size: 1.2rem;
+    padding: 0;
+    text-align: center;
+    width: 100%;
+    letter-spacing: 0.3em;
+    text-security: disc;
+    -webkit-text-security: disc;
+    -moz-text-security: disc;
+    caret-color: var(--text-color);
 }
 
-.login-form input::placeholder {
-    color: var(--text-dim);
+.terminal-input::placeholder {
+    color: transparent;
+}
+
+.terminal-cursor {
+    position: absolute;
+    left: 50%;
+    transform: translateX(-50%);
+    color: var(--text-color);
+    opacity: 0.3;
+    pointer-events: none;
+    font-family: 'Fira Code', monospace;
+    font-size: 1.2rem;
+    letter-spacing: 0.2em;
 }
 
 .login-error-container {
-    margin-top: 1.5rem;
+    margin-top: 2rem;
     text-align: center;
-    height: 2.5rem;
+    min-height: 2rem;
     display: flex;
     align-items: center;
     justify-content: center;
 }
 
 .login-error {
-    font-size: 0.875rem;
+    font-size: 0.9rem;
     color: var(--error-color);
     opacity: 0;
-    transition: opacity 0.3s;
+    transition: opacity 0.3s ease, transform 0.3s ease;
+    transform: translateY(-10px);
+    font-family: 'Fira Code', monospace;
+    font-weight: 400;
 }
 
 .login-error.visible {
     opacity: 1;
+    transform: translateY(0);
 }
 
 /* Flash messages */
@@ -720,11 +745,24 @@ main {
     margin-top: 1rem;
 }
 
+.comment-form .form-messages {
+    min-height: 2rem;
+    display: flex;
+    align-items: center;
+    position: relative;
+    flex: 1;
+}
+
 .comment-form .form-message,
 .comment-form .form-error {
-    font-size: 0.875rem;
+    font-size: 0.9rem;
     opacity: 0;
-    transition: opacity 0.3s;
+    transition: opacity 0.3s ease, transform 0.3s ease;
+    transform: translateY(-10px);
+    font-family: 'Fira Code', monospace;
+    font-weight: 400;
+    position: absolute;
+    left: 0;
 }
 
 .comment-form .form-message {
@@ -738,6 +776,7 @@ main {
 .comment-form .form-message.visible,
 .comment-form .form-error.visible {
     opacity: 1;
+    transform: translateY(0);
 }
 
 .comment-form button {

@@ -24,7 +24,10 @@ __        ___     _           _                              _
         </div>
 
         <form method="POST" action="{{ url_for('auth.login') }}" class="login-form" id="login-form">
-            <input type="password" name="password" autofocus autocomplete="current-password" placeholder="" id="password-input">
+            <div class="terminal-input-wrapper">
+                <input type="password" name="password" autofocus autocomplete="current-password" placeholder="" id="password-input" class="terminal-input">
+                <span class="terminal-cursor" id="terminal-cursor">•••</span>
+            </div>
         </form>
     </div>
 
@@ -33,19 +36,39 @@ __        ___     _           _                              _
     </footer>
 
     <script>
+    // Terminal cursor effect
+    const passwordInput = document.getElementById('password-input');
+    const cursor = document.getElementById('terminal-cursor');
+    const terminalWrapper = document.querySelector('.terminal-input-wrapper');
+
+    // Update cursor visibility based on input content and focus
+    function updateCursor() {
+        if (passwordInput.value.length > 0 || document.activeElement === passwordInput) {
+            cursor.style.display = 'none';
+        } else {
+            cursor.style.display = 'inline-block';
+        }
+    }
+
+    passwordInput.addEventListener('input', updateCursor);
+    passwordInput.addEventListener('focus', updateCursor);
+    passwordInput.addEventListener('blur', updateCursor);
+
+    // Initial state
+    updateCursor();
+
     // Client-side validation to prevent browser default message
     document.getElementById('login-form').addEventListener('submit', function(e) {
-        const passwordInput = document.getElementById('password-input');
         const errorElement = document.getElementById('login-error');
-        if (!passwordInput.value.trim()) {
+        if (!passwordInput.value || !passwordInput.value.trim()) {
             e.preventDefault();
-            passwordInput.style.borderColor = 'var(--error-color)';
-            errorElement.textContent = 'puste nie przejdzie';
+            e.stopPropagation();
+            errorElement.textContent = 'Puste nie przejdzie';
             errorElement.classList.add('visible');
             setTimeout(() => {
-                passwordInput.style.borderColor = '';
                 errorElement.classList.remove('visible');
             }, 3000);
+            return false;
         }
     });
     </script>
