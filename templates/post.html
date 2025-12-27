@@ -323,60 +323,63 @@ document.addEventListener('DOMContentLoaded', function() {
             updateVolume(e.target.value);
         });
 
-        // Mute/unmute on icon click - with hidden slider handling
-        volumeIconBtn.addEventListener('click', () => {
+        // Detect if device has hover capability (check both hover and pointer media queries)
+        const hasHover = window.matchMedia('(hover: hover) and (pointer: fine)').matches;
+
+        // Volume icon click behavior
+        volumeIconBtn.addEventListener('click', (e) => {
             const volumeContainer = wrapper.querySelector('.audio-volume-container');
             const volumeTrack = wrapper.querySelector('.audio-volume-track');
 
-            // Check if slider is currently revealed by checking the class
-            // We only allow mute/unmute when the slider is already revealed
+            // Check if this was a mouse click (not touch)
+            const isMouseClick = e.pointerType === 'mouse' || e.pointerType === '' || e.pointerType === undefined;
+
+            // On PC/mouse clicks: always mute/unmute
+            if (hasHover || isMouseClick) {
+                if (audio.volume > 0) {
+                    updateVolume(0, false);
+                } else {
+                    updateVolume(previousVolume, false);
+                }
+                return;
+            }
+
+            // On touch devices: only show/hide slider, never mute
             const isRevealed = volumeContainer.classList.contains('volume-revealed');
 
-            // When slider is not revealed, first click shows the slider instead of toggling mute
             if (!isRevealed) {
-                // Trigger the hover/active state to show the slider
+                // Show the slider
                 volumeContainer.classList.add('volume-revealed');
                 volumeTrack.style.opacity = '1';
                 volumeTrack.style.pointerEvents = 'auto';
                 volumeTrack.style.width = 'auto';
                 volumeTrack.style.transition = 'opacity 0.15s ease';
 
-                // Hide it again after a delay if not interacting
+                // Hide after 3 seconds of inactivity
                 const hideTimeout = setTimeout(() => {
-                    if (!volumeContainer.matches(':hover') &&
-                        !volumeContainer.matches(':focus-within')) {
-                        volumeContainer.classList.remove('volume-revealed');
-                        volumeTrack.style.opacity = '0';
-                        volumeTrack.style.pointerEvents = 'none';
-                        volumeTrack.style.width = '0';
-                    }
+                    volumeContainer.classList.remove('volume-revealed');
+                    volumeTrack.style.opacity = '';
+                    volumeTrack.style.pointerEvents = '';
+                    volumeTrack.style.width = '';
                 }, 3000);
 
-                // Remove the class when user moves away
-                const hideSlider = () => {
-                    clearTimeout(hideTimeout);
-                    volumeContainer.classList.remove('volume-revealed');
-                    if (!volumeContainer.matches(':hover') &&
-                        !volumeContainer.matches(':focus-within')) {
-                        volumeTrack.style.opacity = '0';
-                        volumeTrack.style.pointerEvents = 'none';
-                        volumeTrack.style.width = '0';
-                    }
-                };
-
-                volumeContainer.addEventListener('mouseleave', hideSlider, { once: true });
-                document.addEventListener('click', (e) => {
+                // Hide when tapping outside
+                document.addEventListener('click', function outsideClick(e) {
                     if (!volumeContainer.contains(e.target)) {
-                        hideSlider();
+                        clearTimeout(hideTimeout);
+                        volumeContainer.classList.remove('volume-revealed');
+                        volumeTrack.style.opacity = '';
+                        volumeTrack.style.pointerEvents = '';
+                        volumeTrack.style.width = '';
+                        document.removeEventListener('click', outsideClick);
                     }
                 }, { once: true });
             } else {
-                // Normal behavior: toggle mute/unmute (only when already revealed)
-                if (audio.volume > 0) {
-                    updateVolume(0, false);
-                } else {
-                    updateVolume(previousVolume, false);
-                }
+                // Hide the slider
+                volumeContainer.classList.remove('volume-revealed');
+                volumeTrack.style.opacity = '';
+                volumeTrack.style.pointerEvents = '';
+                volumeTrack.style.width = '';
             }
         });
 
