@@ -448,10 +448,6 @@ main {
     margin: 0;
 }
 
-.audio-metadata {
-    margin-bottom: 0.5rem;
-}
-
 .audio-title {
     color: var(--accent-color);
     font-size: 1.05rem;
@@ -474,7 +470,7 @@ main {
     width: 100%;
     display: flex;
     gap: 0.75rem;
-    align-items: center;
+    align-items: stretch;
 }
 
 .audio-time {
@@ -482,22 +478,43 @@ main {
     font-size: 0.75rem;
     min-width: 35px;
     text-align: center;
+    display: flex;
+    align-items: center;
+    justify-content: center;
 }
 
 .audio-progress {
     flex: 1;
+    height: 30px;
+    cursor: pointer;
+    position: relative;
+    touch-action: none;
+    display: flex;
+    align-items: center;
+}
+
+.audio-progress::before {
+    content: '';
+    position: absolute;
+    left: 0;
+    right: 0;
+    top: 50%;
+    transform: translateY(-50%);
     height: 6px;
     background-color: var(--bg-color);
     border: 1px solid var(--border-color);
-    cursor: pointer;
-    position: relative;
 }
 
 .audio-progress-bar {
-    height: 100%;
+    position: absolute;
+    left: 0;
+    top: 50%;
+    transform: translateY(-50%);
+    height: 6px;
     background-color: var(--accent-color);
     width: 0%;
-    transition: width 0.1s linear;
+    pointer-events: none;
+    z-index: 1;
 }
 
 .audio-buttons {

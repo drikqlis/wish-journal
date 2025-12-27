@@ -144,9 +144,11 @@ document.addEventListener('DOMContentLoaded', function() {
 
         // Update progress
         audio.addEventListener('timeupdate', () => {
-            const percent = (audio.currentTime / audio.duration) * 100;
-            progressBar.style.width = percent + '%';
-            currentTime.textContent = formatTime(audio.currentTime);
+            if (!isDragging) {
+                const percent = (audio.currentTime / audio.duration) * 100;
+                progressBar.style.width = percent + '%';
+                currentTime.textContent = formatTime(audio.currentTime);
+            }
         });
 
         // Update duration - try multiple events to catch it
@@ -181,25 +183,35 @@ document.addEventListener('DOMContentLoaded', function() {
             progressBar.style.width = '0%';
         });
 
-        // Seek by clicking
+        // Seek by clicking/tapping
         progress.addEventListener('click', (e) => {
             const rect = progress.getBoundingClientRect();
             const percent = (e.clientX - rect.left) / rect.width;
             audio.currentTime = percent * audio.duration;
         });
 
-        // Seek by dragging
+        // Seek by dragging (mouse and touch)
         let isDragging = false;
 
         const seek = (e) => {
             const rect = progress.getBoundingClientRect();
-            const percent = Math.max(0, Math.min(1, (e.clientX - rect.left) / rect.width));
-            audio.currentTime = percent * audio.duration;
+            const clientX = e.type.includes('touch') ?
+                (e.touches && e.touches.length > 0 ? e.touches[0].clientX : e.changedTouches[0].clientX) :
+                e.clientX;
+            const percent = Math.max(0, Math.min(1, (clientX - rect.left) / rect.width));
+            const newTime = percent * audio.duration;
+
+            // Update both audio time and visual progress immediately
+            audio.currentTime = newTime;
+            progressBar.style.width = (percent * 100) + '%';
+            currentTime.textContent = formatTime(newTime);
         };
 
+        // Mouse events
         progress.addEventListener('mousedown', (e) => {
             isDragging = true;
             seek(e);
+            e.preventDefault();
         });
 
         document.addEventListener('mousemove', (e) => {
@@ -209,6 +221,24 @@ document.addEventListener('DOMContentLoaded', function() {
         });
 
         document.addEventListener('mouseup', () => {
+            isDragging = false;
+        });
+
+        // Touch events
+        progress.addEventListener('touchstart', (e) => {
+            isDragging = true;
+            seek(e);
+            e.preventDefault();
+        });
+
+        document.addEventListener('touchmove', (e) => {
+            if (isDragging) {
+                seek(e);
+                e.preventDefault();
+            }
+        }, { passive: false });
+
+        document.addEventListener('touchend', () => {
             isDragging = false;
         });
 
