@@ -1008,9 +1008,9 @@ main {
     color: var(--bg-color);
 }
 
-/* Prevent stuck focus state on mobile after tap */
+/* Prevent stuck focus state on mobile after tap, but keep active state */
 @media (hover: none) and (pointer: coarse) {
-    .comment-form button:focus {
+    .comment-form button:focus:not(:active) {
         background-color: transparent;
         color: var(--accent-color);
     }
