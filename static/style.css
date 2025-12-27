@@ -1000,6 +1000,19 @@ main {
     color: var(--bg-color);
 }
 
+.comment-form button:active {
+    background-color: var(--accent-color);
+    color: var(--bg-color);
+}
+
+/* Prevent stuck focus state on mobile after tap */
+@media (hover: none) and (pointer: coarse) {
+    .comment-form button:focus {
+        background-color: transparent;
+        color: var(--accent-color);
+    }
+}
+
 /* Error page */
 .error-page {
     text-align: center;

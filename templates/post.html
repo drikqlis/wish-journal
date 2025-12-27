@@ -59,6 +59,8 @@ function showMessage(msgToShow, msgToHide) {
 
 document.querySelector('#comment-form form').addEventListener('submit', function(e) {
     const textarea = this.querySelector('textarea');
+    const submitButton = this.querySelector('button[type="submit"]');
+
     if (!textarea.value || !textarea.value.trim()) {
         e.preventDefault();
         e.stopPropagation();
@@ -69,6 +71,11 @@ document.querySelector('#comment-form form').addEventListener('submit', function
             formError.classList.remove('visible');
         }, 3000);
         return false;
+    }
+
+    // Remove focus from button on mobile to prevent stuck pressed state
+    if (submitButton) {
+        setTimeout(() => submitButton.blur(), 100);
     }
 });
 
