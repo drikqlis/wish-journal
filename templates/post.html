@@ -115,11 +115,21 @@ document.addEventListener('DOMContentLoaded', function() {
                 <span class="audio-time audio-duration">0:00</span>
             </div>
             <div class="audio-buttons">
-                <button class="audio-button audio-play">Odtwórz</button>
                 <div class="audio-volume-container">
-                    <span class="audio-volume-icon">Głośność</span>
-                    <input type="range" class="audio-volume" min="0" max="100" value="100">
+                    <button class="audio-volume-icon-btn" aria-label="Mute">
+                        <img src="/static/volume-high.svg" class="audio-volume-icon" alt="Volume">
+                    </button>
+                    <div class="audio-volume-track">
+                        <input type="range" class="audio-volume" min="0" max="100" value="100">
+                        <div class="audio-volume-bar"></div>
+                    </div>
                 </div>
+                <button class="audio-button audio-play-pause" aria-label="Play">
+                    <img src="/static/play.svg" class="audio-play-icon" alt="Play">
+                </button>
+                <a class="audio-button audio-download" download aria-label="Download">
+                    <img src="/static/download.svg" class="audio-download-icon" alt="Download">
+                </a>
             </div>
         </div>`;
 
@@ -128,12 +138,27 @@ document.addEventListener('DOMContentLoaded', function() {
         wrapper.appendChild(audio);
 
         // Get elements
-        const playBtn = wrapper.querySelector('.audio-play');
+        const playBtn = wrapper.querySelector('.audio-play-pause');
+        const playIcon = wrapper.querySelector('.audio-play-icon');
         const progressBar = wrapper.querySelector('.audio-progress-bar');
         const progress = wrapper.querySelector('.audio-progress');
         const currentTime = wrapper.querySelector('.audio-current');
         const duration = wrapper.querySelector('.audio-duration');
         const volumeSlider = wrapper.querySelector('.audio-volume');
+        const volumeIconBtn = wrapper.querySelector('.audio-volume-icon-btn');
+        const volumeIcon = wrapper.querySelector('.audio-volume-icon');
+        const volumeBar = wrapper.querySelector('.audio-volume-bar');
+        const downloadBtn = wrapper.querySelector('.audio-download');
+
+        let previousVolume = 100;
+
+        // Set download link - get the source URL and add download parameter
+        const audioSrc = audio.querySelector('source')?.src || audio.src;
+        downloadBtn.href = audioSrc + (audioSrc.includes('?') ? '&' : '?') + 'download=1';
+
+        // Extract filename from URL for download attribute
+        const filename = audioSrc.split('/').pop().split('?')[0] || 'audio.mp3';
+        downloadBtn.setAttribute('download', filename);
 
         // Format time
         function formatTime(seconds) {
@@ -147,6 +172,7 @@ document.addEventListener('DOMContentLoaded', function() {
             if (!isDragging) {
                 const percent = (audio.currentTime / audio.duration) * 100;
                 progressBar.style.width = percent + '%';
+                progress.style.setProperty('--progress-percent', percent + '%');
                 currentTime.textContent = formatTime(audio.currentTime);
             }
         });
@@ -170,16 +196,22 @@ document.addEventListener('DOMContentLoaded', function() {
         playBtn.addEventListener('click', () => {
             if (audio.paused) {
                 audio.play();
-                playBtn.textContent = 'Pauza';
+                playIcon.src = '/static/pause.svg';
+                playIcon.alt = 'Pause';
+                playBtn.setAttribute('aria-label', 'Pause');
             } else {
                 audio.pause();
-                playBtn.textContent = 'Odtwórz';
+                playIcon.src = '/static/play.svg';
+                playIcon.alt = 'Play';
+                playBtn.setAttribute('aria-label', 'Play');
             }
         });
 
         // Reset on end
         audio.addEventListener('ended', () => {
-            playBtn.textContent = 'Odtwórz';
+            playIcon.src = '/static/play.svg';
+            playIcon.alt = 'Play';
+            playBtn.setAttribute('aria-label', 'Play');
             progressBar.style.width = '0%';
         });
 
@@ -198,6 +230,7 @@ document.addEventListener('DOMContentLoaded', function() {
             // Update both audio time and visual progress immediately
             audio.currentTime = newTime;
             progressBar.style.width = (percent * 100) + '%';
+            progress.style.setProperty('--progress-percent', (percent * 100) + '%');
             currentTime.textContent = formatTime(newTime);
         };
 
@@ -206,14 +239,18 @@ document.addEventListener('DOMContentLoaded', function() {
             // Ignore click events that come after touch events
             if (touchUsed) {
                 touchUsed = false;
+                e.preventDefault();
+                e.stopPropagation();
                 return;
             }
 
-            // Only process if it's a real mouse click
-            if (e.clientX !== undefined && e.clientX !== 0) {
+            // Only process if it's a real mouse click with valid coordinates
+            if (e.clientX !== undefined && e.clientX !== 0 && e.clientY !== undefined) {
                 const rect = progress.getBoundingClientRect();
                 const percent = (e.clientX - rect.left) / rect.width;
-                audio.currentTime = percent * audio.duration;
+                if (percent >= 0 && percent <= 1) {
+                    audio.currentTime = percent * audio.duration;
+                }
             }
         });
 
@@ -254,9 +291,49 @@ document.addEventListener('DOMContentLoaded', function() {
         });
 
         // Volume control
+        const updateVolume = (value, savePrevious = true) => {
+            const volumeLevel = value / 100;
+            audio.volume = volumeLevel;
+            volumeBar.style.width = value + '%';
+            wrapper.querySelector('.audio-volume-track').style.setProperty('--volume-percent', value + '%');
+            volumeSlider.value = value;
+
+            // Save previous volume (but not if it's 0)
+            if (savePrevious && value > 0) {
+                previousVolume = value;
+            }
+
+            // Update volume icon
+            if (value == 0) {
+                volumeIcon.src = '/static/volume-close.svg';
+                volumeIconBtn.setAttribute('aria-label', 'Unmute');
+            } else if (value < 33) {
+                volumeIcon.src = '/static/volume-low.svg';
+                volumeIconBtn.setAttribute('aria-label', 'Mute');
+            } else if (value < 66) {
+                volumeIcon.src = '/static/volume-medium.svg';
+                volumeIconBtn.setAttribute('aria-label', 'Mute');
+            } else {
+                volumeIcon.src = '/static/volume-high.svg';
+                volumeIconBtn.setAttribute('aria-label', 'Mute');
+            }
+        };
+
         volumeSlider.addEventListener('input', (e) => {
-            audio.volume = e.target.value / 100;
+            updateVolume(e.target.value);
         });
+
+        // Mute/unmute on icon click
+        volumeIconBtn.addEventListener('click', () => {
+            if (audio.volume > 0) {
+                updateVolume(0, false);
+            } else {
+                updateVolume(previousVolume, false);
+            }
+        });
+
+        // Initialize volume bar
+        updateVolume(volumeSlider.value);
     });
 });
 </script>

@@ -81,4 +81,14 @@ def media(path: str):
     with open(media_path, "rb") as f:
         file_content = f.read()
 
-    return Response(file_content, mimetype=mime_type or "application/octet-stream")
+    # Check if download is requested
+    is_download = request.args.get("download") == "1"
+
+    response = Response(file_content, mimetype=mime_type or "application/octet-stream")
+
+    # Add Content-Disposition header for downloads
+    if is_download:
+        filename = path.split("/")[-1]
+        response.headers["Content-Disposition"] = f'attachment; filename="{filename}"'
+
+    return response
