@@ -115,9 +115,9 @@ document.addEventListener('DOMContentLoaded', function() {
                 <span class="audio-time audio-duration">0:00</span>
             </div>
             <div class="audio-buttons">
-                <button class="audio-button audio-play">odtwórz</button>
+                <button class="audio-button audio-play">Odtwórz</button>
                 <div class="audio-volume-container">
-                    <span class="audio-volume-icon">głośność</span>
+                    <span class="audio-volume-icon">Głośność</span>
                     <input type="range" class="audio-volume" min="0" max="100" value="100">
                 </div>
             </div>
@@ -170,16 +170,16 @@ document.addEventListener('DOMContentLoaded', function() {
         playBtn.addEventListener('click', () => {
             if (audio.paused) {
                 audio.play();
-                playBtn.textContent = 'pauza';
+                playBtn.textContent = 'Pauza';
             } else {
                 audio.pause();
-                playBtn.textContent = 'odtwórz';
+                playBtn.textContent = 'Odtwórz';
             }
         });
 
         // Reset on end
         audio.addEventListener('ended', () => {
-            playBtn.textContent = 'odtwórz';
+            playBtn.textContent = 'Odtwórz';
             progressBar.style.width = '0%';
         });
 
