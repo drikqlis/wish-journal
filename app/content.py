@@ -49,6 +49,25 @@ def parse_frontmatter(content: str) -> tuple[dict, str]:
     return {}, content
 
 
+def strip_media_from_text(text: str) -> str:
+    """Remove images, audio, and video from markdown/HTML text."""
+    # Remove markdown images: ![alt](url)
+    text = re.sub(r'!\[([^\]]*)\]\([^\)]+\)', '', text)
+
+    # Remove HTML img tags (both self-closing and with closing tags)
+    text = re.sub(r'<img[^>]*/?>', '', text, flags=re.IGNORECASE)
+
+    # Remove HTML audio tags and their content
+    text = re.sub(r'<audio[^>]*>.*?</audio>', '', text, flags=re.IGNORECASE | re.DOTALL)
+    text = re.sub(r'<audio[^>]*/>', '', text, flags=re.IGNORECASE)
+
+    # Remove HTML video tags and their content
+    text = re.sub(r'<video[^>]*>.*?</video>', '', text, flags=re.IGNORECASE | re.DOTALL)
+    text = re.sub(r'<video[^>]*/>', '', text, flags=re.IGNORECASE)
+
+    return text
+
+
 def load_posts() -> None:
     global _posts_cache
 
@@ -77,8 +96,8 @@ def load_posts() -> None:
             md.reset()
             content_html = md.convert(body)
 
-            # Create excerpt (first 500 chars of raw, then render)
-            excerpt_raw = body.strip()
+            # Create excerpt (first 500 chars of raw, strip media, then render)
+            excerpt_raw = strip_media_from_text(body.strip())
             if len(excerpt_raw) > 500:
                 excerpt_raw = excerpt_raw[:500].rsplit(" ", 1)[0] + "..."
             md.reset()
