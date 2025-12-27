@@ -328,13 +328,12 @@ document.addEventListener('DOMContentLoaded', function() {
             const volumeContainer = wrapper.querySelector('.audio-volume-container');
             const volumeTrack = wrapper.querySelector('.audio-volume-track');
 
-            // Check if slider is currently hidden (check both computed style and class)
-            const computedOpacity = parseFloat(window.getComputedStyle(volumeTrack).opacity);
+            // Check if slider is currently revealed by checking the class
+            // We only allow mute/unmute when the slider is already revealed
             const isRevealed = volumeContainer.classList.contains('volume-revealed');
-            const isSliderHidden = computedOpacity === 0 && !isRevealed;
 
-            // When slider is hidden, first click shows the slider instead of toggling mute
-            if (isSliderHidden) {
+            // When slider is not revealed, first click shows the slider instead of toggling mute
+            if (!isRevealed) {
                 // Trigger the hover/active state to show the slider
                 volumeContainer.classList.add('volume-revealed');
                 volumeTrack.style.opacity = '1';
@@ -372,7 +371,7 @@ document.addEventListener('DOMContentLoaded', function() {
                     }
                 }, { once: true });
             } else {
-                // Normal behavior: toggle mute/unmute
+                // Normal behavior: toggle mute/unmute (only when already revealed)
                 if (audio.volume > 0) {
                     updateVolume(0, false);
                 } else {
