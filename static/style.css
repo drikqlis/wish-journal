@@ -1036,6 +1036,7 @@ footer {
     text-align: center;
     color: var(--text-dim);
     font-size: 0.75rem;
+    font-family: 'Fira Code', monospace;
 }
 
 footer a {
