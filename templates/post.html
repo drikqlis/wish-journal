@@ -328,8 +328,10 @@ document.addEventListener('DOMContentLoaded', function() {
             const volumeContainer = wrapper.querySelector('.audio-volume-container');
             const volumeTrack = wrapper.querySelector('.audio-volume-track');
 
-            // Check if slider is currently hidden
-            const isSliderHidden = window.getComputedStyle(volumeTrack).opacity === '0';
+            // Check if slider is currently hidden (check both computed style and class)
+            const computedOpacity = parseFloat(window.getComputedStyle(volumeTrack).opacity);
+            const isRevealed = volumeContainer.classList.contains('volume-revealed');
+            const isSliderHidden = computedOpacity === 0 && !isRevealed;
 
             // When slider is hidden, first click shows the slider instead of toggling mute
             if (isSliderHidden) {
@@ -341,18 +343,19 @@ document.addEventListener('DOMContentLoaded', function() {
                 volumeTrack.style.transition = 'opacity 0.15s ease';
 
                 // Hide it again after a delay if not interacting
-                setTimeout(() => {
+                const hideTimeout = setTimeout(() => {
                     if (!volumeContainer.matches(':hover') &&
-                        !volumeContainer.matches(':focus-within') &&
-                        !volumeContainer.classList.contains('volume-revealed')) {
+                        !volumeContainer.matches(':focus-within')) {
+                        volumeContainer.classList.remove('volume-revealed');
                         volumeTrack.style.opacity = '0';
                         volumeTrack.style.pointerEvents = 'none';
                         volumeTrack.style.width = '0';
                     }
                 }, 3000);
 
-                // Remove the class when user interacts or moves away
+                // Remove the class when user moves away
                 const hideSlider = () => {
+                    clearTimeout(hideTimeout);
                     volumeContainer.classList.remove('volume-revealed');
                     if (!volumeContainer.matches(':hover') &&
                         !volumeContainer.matches(':focus-within')) {
@@ -363,7 +366,11 @@ document.addEventListener('DOMContentLoaded', function() {
                 };
 
                 volumeContainer.addEventListener('mouseleave', hideSlider, { once: true });
-                volumeTrack.addEventListener('touchend', hideSlider, { once: true });
+                document.addEventListener('click', (e) => {
+                    if (!volumeContainer.contains(e.target)) {
+                        hideSlider();
+                    }
+                }, { once: true });
             } else {
                 // Normal behavior: toggle mute/unmute
                 if (audio.volume > 0) {
