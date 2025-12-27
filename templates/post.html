@@ -183,15 +183,9 @@ document.addEventListener('DOMContentLoaded', function() {
             progressBar.style.width = '0%';
         });
 
-        // Seek by clicking/tapping
-        progress.addEventListener('click', (e) => {
-            const rect = progress.getBoundingClientRect();
-            const percent = (e.clientX - rect.left) / rect.width;
-            audio.currentTime = percent * audio.duration;
-        });
-
         // Seek by dragging (mouse and touch)
         let isDragging = false;
+        let touchUsed = false;
 
         const seek = (e) => {
             const rect = progress.getBoundingClientRect();
@@ -206,6 +200,22 @@ document.addEventListener('DOMContentLoaded', function() {
             progressBar.style.width = (percent * 100) + '%';
             currentTime.textContent = formatTime(newTime);
         };
+
+        // Seek by clicking (only for mouse, not touch)
+        progress.addEventListener('click', (e) => {
+            // Ignore click events that come after touch events
+            if (touchUsed) {
+                touchUsed = false;
+                return;
+            }
+
+            // Only process if it's a real mouse click
+            if (e.clientX !== undefined && e.clientX !== 0) {
+                const rect = progress.getBoundingClientRect();
+                const percent = (e.clientX - rect.left) / rect.width;
+                audio.currentTime = percent * audio.duration;
+            }
+        });
 
         // Mouse events
         progress.addEventListener('mousedown', (e) => {
@@ -226,6 +236,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
         // Touch events
         progress.addEventListener('touchstart', (e) => {
+            touchUsed = true;
             isDragging = true;
             seek(e);
             e.preventDefault();
