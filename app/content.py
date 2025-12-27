@@ -10,13 +10,13 @@ import markdown
 import yaml
 from flask import Flask, current_app
 from watchdog.events import FileSystemEventHandler
-from watchdog.observers import Observer
+from watchdog.observers.polling import PollingObserver
 
 logger = logging.getLogger(__name__)
 
 _posts_cache: list["Post"] = []
 _cache_lock = threading.Lock()
-_observer: Observer | None = None
+_observer: PollingObserver | None = None
 
 
 @dataclass
@@ -172,11 +172,11 @@ def start_watcher(app: Flask) -> None:
         return
 
     event_handler = PostsEventHandler(app)
-    _observer = Observer()
+    _observer = PollingObserver(timeout=5)
     _observer.schedule(event_handler, str(posts_dir), recursive=False)
     _observer.daemon = True
     _observer.start()
-    logger.info(f"Started file watcher on {posts_dir}")
+    logger.info(f"Started polling file watcher on {posts_dir} (NFS-compatible mode)")
 
 
 def stop_watcher() -> None:
