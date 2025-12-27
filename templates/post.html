@@ -323,18 +323,15 @@ document.addEventListener('DOMContentLoaded', function() {
             updateVolume(e.target.value);
         });
 
-        // Mute/unmute on icon click - with small screen handling
+        // Mute/unmute on icon click - with hidden slider handling
         volumeIconBtn.addEventListener('click', () => {
             const volumeContainer = wrapper.querySelector('.audio-volume-container');
             const volumeTrack = wrapper.querySelector('.audio-volume-track');
 
-            // Check if we're on small screen and slider is hidden
-            const isSmallScreen = window.innerWidth <= 500;
-            const isSliderHidden = isSmallScreen &&
-                window.getComputedStyle(volumeTrack).opacity === '0';
+            // Check if slider is currently hidden
+            const isSliderHidden = window.getComputedStyle(volumeTrack).opacity === '0';
 
-            // On small screen with hidden slider, first click shows the slider
-            // instead of toggling mute
+            // When slider is hidden, first click shows the slider instead of toggling mute
             if (isSliderHidden) {
                 // Trigger the hover/active state to show the slider
                 volumeContainer.classList.add('volume-revealed');

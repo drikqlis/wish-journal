@@ -742,64 +742,62 @@ main {
     border: none;
 }
 
-/* Adjust layout for medium screens - hide volume slider */
-@media (max-width: 500px) {
-    .audio-volume-container {
-        position: absolute;
-        left: 0;
-        max-width: 30px;
-        transition: max-width 0.2s ease 0.3s;
-        overflow: visible;
-    }
+/* Hide volume slider on all screens - show on hover/interaction */
+.audio-volume-container {
+    position: absolute;
+    left: 0;
+    max-width: 30px;
+    transition: max-width 0.2s ease 0.3s;
+    overflow: visible;
+}
 
-    .audio-volume-container:hover,
-    .audio-volume-container:focus-within,
-    .audio-volume-container:active {
-        max-width: 100px;
-        transition: max-width 0.15s ease;
-    }
+.audio-volume-container:hover,
+.audio-volume-container:focus-within,
+.audio-volume-container:active {
+    max-width: 100px;
+    transition: max-width 0.15s ease;
+}
 
-    .audio-volume-track {
-        opacity: 0;
-        pointer-events: none;
-        transition: opacity 0.15s ease 0.3s, width 0s ease 0.45s;
-        width: 0;
-    }
+.audio-volume-track {
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.15s ease 0.3s, width 0s ease 0.45s;
+    width: 0;
+}
 
-    .audio-volume-container:hover .audio-volume-track,
-    .audio-volume-container:focus-within .audio-volume-track,
-    .audio-volume-container:active .audio-volume-track {
-        opacity: 1;
-        pointer-events: auto;
-        width: auto;
-        transition: opacity 0.15s ease, width 0s;
-    }
+.audio-volume-container:hover .audio-volume-track,
+.audio-volume-container:focus-within .audio-volume-track,
+.audio-volume-container:active .audio-volume-track {
+    opacity: 1;
+    pointer-events: auto;
+    width: auto;
+    transition: opacity 0.15s ease, width 0s;
+}
 
-    /* Keep slider visible when actively being used */
-    .audio-volume:active ~ .audio-volume-track,
-    .audio-volume:focus ~ .audio-volume-track {
-        opacity: 1;
-        pointer-events: auto;
-    }
+/* Keep slider visible when actively being used */
+.audio-volume:active ~ .audio-volume-track,
+.audio-volume:focus ~ .audio-volume-track {
+    opacity: 1;
+    pointer-events: auto;
+}
 
-    /* Hide all visual elements on collapsed slider */
-    .audio-volume-track::before,
-    .audio-volume-track::after,
-    .audio-volume-bar {
-        display: none;
-    }
+/* Hide all visual elements on collapsed slider */
+.audio-volume-track::before,
+.audio-volume-track::after,
+.audio-volume-bar {
+    display: none;
+}
 
-    .audio-volume-container:hover .audio-volume-track::before,
-    .audio-volume-container:focus-within .audio-volume-track::before,
-    .audio-volume-container:active .audio-volume-track::before,
-    .audio-volume-container:hover .audio-volume-track::after,
-    .audio-volume-container:focus-within .audio-volume-track::after,
-    .audio-volume-container:active .audio-volume-track::after,
-    .audio-volume-container:hover .audio-volume-bar,
-    .audio-volume-container:focus-within .audio-volume-bar,
-    .audio-volume-container:active .audio-volume-bar {
-        display: block;
-    }
+.audio-volume-container:hover .audio-volume-track::before,
+.audio-volume-container:focus-within .audio-volume-track::before,
+.audio-volume-container:active .audio-volume-track::before,
+.audio-volume-container:hover .audio-volume-track::after,
+.audio-volume-container:focus-within .audio-volume-track::after,
+.audio-volume-container:active .audio-volume-track::after,
+.audio-volume-container:hover .audio-volume-bar,
+.audio-volume-container:focus-within .audio-volume-bar,
+.audio-volume-container:active .audio-volume-bar {
+    display: block;
 }
 
 /* Adjust layout for smaller screens */
