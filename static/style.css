@@ -880,23 +880,25 @@ main {
     display: flex;
     align-items: center;
     justify-content: center;
+    cursor: pointer;
 }
 
 .video-player-fullscreen-wrapper .video-player-screen {
     position: relative;
 }
 
-.video-player:not(:fullscreen):not(:-webkit-full-screen):not(:-moz-full-screen):not(:-ms-fullscreen) .video-player-screen video {
+.video-player-fullscreen-wrapper:not(.is-fullscreen) .video-player-screen video {
     max-height: 600px;
 }
 
 .video-player-screen video {
     max-width: 100%;
-    width: 100%;
-    height: 100%;
+    width: auto;
+    height: auto;
+    max-height: 100%;
     object-fit: contain;
     display: block;
-    margin: 0;
+    margin: 0 auto;
     cursor: pointer;
 }
 
@@ -1293,12 +1295,14 @@ main {
     flex-direction: column;
     width: 100%;
     position: relative;
+    max-height: 600px;
 }
 
 /* Fullscreen styles */
 .video-player-fullscreen-wrapper.is-fullscreen {
     width: 100vw;
     height: 100vh;
+    max-height: none;
     background: black;
     position: relative;
 }

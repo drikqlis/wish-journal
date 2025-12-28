@@ -591,6 +591,14 @@ document.addEventListener('DOMContentLoaded', function() {
             }
         });
 
+        // Make clicking on video screen background (letterboxing/pillarboxing) also toggle play/pause
+        screen.addEventListener('click', (e) => {
+            // Only toggle if clicking on the screen itself, not the video
+            if (e.target === screen) {
+                togglePlayPause();
+            }
+        });
+
         // Reset on end
         video.addEventListener('ended', () => {
             playIcon.src = '/static/play.svg';
