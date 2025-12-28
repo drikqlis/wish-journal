@@ -871,6 +871,7 @@ main {
     display: flex;
     flex-direction: column;
     gap: 0;
+    overflow: hidden;
 }
 
 .video-player-screen {
@@ -1297,6 +1298,7 @@ main {
     width: 100%;
     position: relative;
     max-height: 600px;
+    overflow: hidden;
 }
 
 /* Fullscreen styles */
