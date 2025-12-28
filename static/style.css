@@ -906,7 +906,7 @@ main {
 }
 
 .video-controls {
-    padding: 0.7rem;
+    padding: 1.5rem;
     display: flex;
     flex-direction: column;
     gap: 0.75rem;
