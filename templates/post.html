@@ -474,11 +474,6 @@ document.addEventListener('DOMContentLoaded', function() {
         let controlsHideTimer = null;
 
         const showControls = () => {
-            // Only auto-hide in fullscreen mode
-            if (!fullscreenWrapper.classList.contains('is-fullscreen')) {
-                return;
-            }
-
             videoControls.classList.add('active');
 
             // Clear existing timer
@@ -515,18 +510,14 @@ document.addEventListener('DOMContentLoaded', function() {
         });
         fullscreenWrapper.addEventListener('mousemove', showControls);
 
-        // Show controls when entering fullscreen
+        // Show controls when entering/exiting fullscreen
         const showControlsOnFullscreen = () => {
-            if (fullscreenWrapper.classList.contains('is-fullscreen')) {
-                showControls();
-            } else {
-                // Ensure controls are visible when exiting fullscreen
-                videoControls.classList.remove('active');
-                if (controlsHideTimer) {
-                    clearTimeout(controlsHideTimer);
-                }
-            }
+            // Always show controls briefly when toggling fullscreen
+            showControls();
         };
+
+        // Show controls initially on load
+        showControls();
 
         let previousVolume = 100;
 
@@ -587,6 +578,18 @@ document.addEventListener('DOMContentLoaded', function() {
 
         playBtn.addEventListener('click', togglePlayPause);
         video.addEventListener('click', togglePlayPause);
+
+        // Make clicking on empty areas of controls also toggle play/pause
+        videoControls.addEventListener('click', (e) => {
+            // Only toggle if clicking on the controls container itself or progress/time elements
+            // Don't toggle if clicking on buttons or interactive elements
+            const isButton = e.target.closest('button, a, input');
+            const isProgressBar = e.target.closest('.video-progress');
+
+            if (!isButton && !isProgressBar) {
+                togglePlayPause();
+            }
+        });
 
         // Reset on end
         video.addEventListener('ended', () => {

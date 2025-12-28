@@ -882,6 +882,10 @@ main {
     justify-content: center;
 }
 
+.video-player-fullscreen-wrapper .video-player-screen {
+    position: relative;
+}
+
 .video-player:not(:fullscreen):not(:-webkit-full-screen):not(:-moz-full-screen):not(:-ms-fullscreen) .video-player-screen video {
     max-height: 600px;
 }
@@ -910,6 +914,21 @@ main {
     display: flex;
     flex-direction: column;
     gap: 0.75rem;
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    background: linear-gradient(to top, rgba(0, 0, 0, 0.8) 0%, rgba(0, 0, 0, 0.6) 50%, transparent 100%);
+    opacity: 0;
+    transition: opacity 0.3s ease;
+    pointer-events: none;
+    z-index: 10;
+    cursor: pointer;
+}
+
+.video-controls.active {
+    opacity: 1;
+    pointer-events: auto;
 }
 
 .video-progress-container {
@@ -1308,22 +1327,7 @@ main {
 
 /* Position controls at bottom in fullscreen - overlay on video */
 .video-player-fullscreen-wrapper.is-fullscreen .video-controls {
-    position: absolute !important;
-    bottom: 0 !important;
-    left: 0 !important;
-    right: 0 !important;
-    width: 100% !important;
-    z-index: 10 !important;
-    transform: translateZ(0) translateY(0) !important;
-    opacity: 0;
-    transition: opacity 0.3s ease, transform 0.3s ease;
-    pointer-events: none;
-}
-
-/* Show controls when active class is added */
-.video-player-fullscreen-wrapper.is-fullscreen .video-controls.active {
-    opacity: 1;
-    pointer-events: auto;
+    background: linear-gradient(to top, rgba(0, 0, 0, 0.9) 0%, rgba(0, 0, 0, 0.7) 50%, transparent 100%);
 }
 
 .post-content blockquote {
