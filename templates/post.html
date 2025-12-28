@@ -2,6 +2,10 @@
 
 {% block title %}{{ post.title }} - Wish Journal{% endblock %}
 
+{% block head %}
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/glightbox/dist/css/glightbox.min.css">
+{% endblock %}
+
 {% block content %}
 <article class="post-full">
     <header class="post-header">
@@ -47,6 +51,7 @@
     </div>
 </section>
 
+<script src="https://cdn.jsdelivr.net/npm/glightbox/dist/js/glightbox.min.js"></script>
 <script>
 const formMessage = document.getElementById('form-message');
 const formError = document.getElementById('form-error');
@@ -85,6 +90,21 @@ document.addEventListener('DOMContentLoaded', function() {
     setTimeout(() => formMessage.classList.remove('visible'), 3000);
 });
 {% endif %}
+
+// Initialize GLightbox for image gallery
+document.addEventListener('DOMContentLoaded', function() {
+    const lightbox = GLightbox({
+        selector: '.glightbox',
+        touchNavigation: true,
+        loop: true,
+        autoplayVideos: false,
+        skin: 'clean',
+        closeButton: true,
+        cssEfects: {
+            fade: { in: 'fadeIn', out: 'fadeOut' }
+        }
+    });
+});
 
 // Custom Audio Player
 document.addEventListener('DOMContentLoaded', function() {

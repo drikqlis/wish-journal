@@ -2,6 +2,7 @@ import logging
 import os
 import re
 import threading
+import xml.etree.ElementTree as etree
 from dataclasses import dataclass
 from datetime import datetime
 from pathlib import Path
@@ -9,6 +10,8 @@ from pathlib import Path
 import markdown
 import yaml
 from flask import Flask, current_app
+from markdown.blockprocessors import BlockProcessor
+from markdown.extensions import Extension
 from watchdog.events import FileSystemEventHandler
 from watchdog.observers.polling import PollingObserver
 
@@ -18,6 +21,93 @@ _posts_cache: list["Post"] = []
 _cache_lock = threading.Lock()
 _observer: PollingObserver | None = None
 _footer_messages: list[str] = []
+
+
+class GalleryBlockProcessor(BlockProcessor):
+    """Custom markdown processor for image galleries with lightbox support.
+
+    Syntax:
+        :::gallery [rows=3] [title="Gallery Title"]
+        ![alt text](image_url)
+        ...
+        :::
+    """
+
+    RE_IMAGE = re.compile(r'!\[([^\]]*)\]\(([^\)]+)\)')
+    RE_ROWS = re.compile(r'rows=(\d+)')
+    RE_TITLE = re.compile(r'title="([^"]*)"')
+
+    def test(self, parent, block):
+        # Check if the first line starts with :::gallery
+        lines = block.split('\n')
+        return lines[0].strip().startswith(':::gallery')
+
+    def run(self, parent, blocks):
+        block = blocks.pop(0)
+        lines = block.split('\n')
+
+        # Parse first line for options
+        first_line = lines.pop(0).strip()
+
+        # Extract rows parameter (default: 3)
+        rows_match = self.RE_ROWS.search(first_line)
+        rows = int(rows_match.group(1)) if rows_match else 3
+
+        # Extract title parameter
+        title_match = self.RE_TITLE.search(first_line)
+        title = title_match.group(1) if title_match else None
+
+        # Collect lines until we hit :::
+        gallery_lines = []
+        for line in lines:
+            if line.strip() == ':::':
+                break
+            gallery_lines.append(line)
+
+        # Create gallery wrapper
+        gallery_wrapper = etree.SubElement(parent, 'div')
+        gallery_wrapper.set('class', 'gallery-wrapper')
+
+        # Add title if provided
+        if title:
+            title_div = etree.SubElement(gallery_wrapper, 'div')
+            title_div.set('class', 'gallery-title')
+            title_div.text = title
+
+        # Create gallery container
+        gallery_div = etree.SubElement(gallery_wrapper, 'div')
+        gallery_div.set('class', 'image-gallery')
+        gallery_div.set('data-rows', str(rows))
+
+        # Parse images from collected content
+        content = '\n'.join(gallery_lines)
+        for match in self.RE_IMAGE.finditer(content):
+            alt_text = match.group(1)
+            img_url = match.group(2)
+
+            item_div = etree.SubElement(gallery_div, 'div')
+            item_div.set('class', 'gallery-item')
+
+            link = etree.SubElement(item_div, 'a')
+            link.set('href', img_url)
+            link.set('class', 'glightbox')
+            link.set('data-gallery', 'gallery')
+
+            img = etree.SubElement(link, 'img')
+            img.set('src', img_url)
+            img.set('alt', alt_text)
+            img.set('loading', 'lazy')
+
+        return True
+
+
+class GalleryExtension(Extension):
+    """Markdown extension for image galleries."""
+
+    def extendMarkdown(self, md):
+        md.parser.blockprocessors.register(
+            GalleryBlockProcessor(md.parser), 'gallery', 175
+        )
 
 
 @dataclass
@@ -82,7 +172,7 @@ def load_posts() -> None:
         return
 
     posts = []
-    md = markdown.Markdown(extensions=["fenced_code", "tables", "nl2br"])
+    md = markdown.Markdown(extensions=["fenced_code", "tables", "nl2br", GalleryExtension()])
 
     for file_path in posts_dir.glob("*.md"):
         try:
