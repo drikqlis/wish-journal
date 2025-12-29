@@ -73,7 +73,7 @@
                 this.handleButtonClick();
             } else if (this.ws && !this.input.disabled) {
                 // Focus input when clicking terminal while script is running
-                this.input.focus();
+                this.input.focus({ preventScroll: true });
             }
         }
 
@@ -182,7 +182,7 @@
             this.runningIndicator.textContent = 'Śmigam';
 
             // Focus input when script starts
-            this.input.focus();
+            this.input.focus({ preventScroll: true });
 
             // Start sending keepalive pings every 60 seconds
             this.startKeepalive();
@@ -334,7 +334,7 @@
             this.inputContainer.classList.add('visible');
             this.input.disabled = false;
             if (shouldFocus) {
-                this.input.focus();
+                this.input.focus({ preventScroll: true });
             }
         }
 
