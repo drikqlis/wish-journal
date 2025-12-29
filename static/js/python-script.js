@@ -34,6 +34,12 @@
             this.button = wrapper.querySelector('.script-start');
             this.runningIndicator = wrapper.querySelector('.script-running-indicator');
 
+            // Initialize the play icon
+            const icon = this.button.querySelector('.script-icon');
+            if (icon) {
+                icon.innerHTML = getIcon('play');
+            }
+
             // State
             this.ws = null;
             this.hasRunOnce = false;
@@ -97,9 +103,9 @@
                 this.button.setAttribute('aria-label', 'Restart skryptu');
 
                 // Change icon from play to restart
-                const icon = this.button.querySelector('img');
+                const icon = this.button.querySelector('.script-icon');
                 if (icon) {
-                    icon.src = '/static/images/icons/restart.svg';
+                    icon.innerHTML = getIcon('restart');
                 }
 
                 // Remove clickable state from terminal

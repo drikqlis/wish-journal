@@ -18,16 +18,16 @@ class MediaPlayerUtils {
      */
     static updateVolumeIcon(value, volumeIcon, volumeIconBtn) {
         if (value == 0) {
-            volumeIcon.src = '/static/images/icons/volume-close.svg';
+            volumeIcon.innerHTML = getIcon('volume-close');
             volumeIconBtn.setAttribute('aria-label', 'Unmute');
         } else if (value < 33) {
-            volumeIcon.src = '/static/images/icons/volume-low.svg';
+            volumeIcon.innerHTML = getIcon('volume-low');
             volumeIconBtn.setAttribute('aria-label', 'Mute');
         } else if (value < 66) {
-            volumeIcon.src = '/static/images/icons/volume-medium.svg';
+            volumeIcon.innerHTML = getIcon('volume-medium');
             volumeIconBtn.setAttribute('aria-label', 'Mute');
         } else {
-            volumeIcon.src = '/static/images/icons/volume-high.svg';
+            volumeIcon.innerHTML = getIcon('volume-high');
             volumeIconBtn.setAttribute('aria-label', 'Mute');
         }
     }
@@ -138,18 +138,18 @@ class MediaPlayerUtils {
         playBtn.addEventListener('click', () => {
             if (mediaElement.paused) {
                 mediaElement.play();
-                playIcon.src = '/static/images/icons/pause.svg';
+                playIcon.innerHTML = getIcon('pause');
                 playBtn.setAttribute('aria-label', 'Pause');
             } else {
                 mediaElement.pause();
-                playIcon.src = '/static/images/icons/play.svg';
+                playIcon.innerHTML = getIcon('play');
                 playBtn.setAttribute('aria-label', 'Play');
             }
         });
 
         // Reset icon when media ends
         mediaElement.addEventListener('ended', () => {
-            playIcon.src = '/static/images/icons/play.svg';
+            playIcon.innerHTML = getIcon('play');
             playBtn.setAttribute('aria-label', 'Play');
         });
     }

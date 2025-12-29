@@ -39,6 +39,41 @@ html {
     font-size: 100%;
 }
 
+/* Custom Scrollbar Styling */
+* {
+    scrollbar-width: thin;
+    scrollbar-color: var(--accent-dim) var(--bg-color);
+}
+
+/* WebKit browsers (Chrome, Safari, Edge) */
+*::-webkit-scrollbar {
+    width: 12px;
+    height: 12px;
+}
+
+*::-webkit-scrollbar-track {
+    background: var(--bg-color);
+    border-left: 1px solid var(--border-color);
+}
+
+*::-webkit-scrollbar-thumb {
+    background: var(--accent-dim);
+    border: 2px solid var(--bg-color);
+    border-radius: 6px;
+}
+
+*::-webkit-scrollbar-thumb:hover {
+    background: var(--accent-color);
+}
+
+*::-webkit-scrollbar-thumb:active {
+    background: var(--accent-color);
+}
+
+*::-webkit-scrollbar-corner {
+    background: var(--bg-color);
+}
+
 body {
     font-family: 'Exo 2', sans-serif;
     background-color: var(--bg-color);
@@ -357,6 +392,52 @@ main {
     color: var(--accent-color);
 }
 
+.post-content .video-download {
+    flex-shrink: 0;
+    position: absolute;
+    right: 40px;
+    color: var(--text-dim);
+    transition: color 0.2s;
+}
+
+.post-content .video-download:hover {
+    color: var(--accent-color);
+}
+
+.post-content .video-download:active {
+    color: var(--accent-color);
+}
+
+/* Prevent stuck focus state on mobile after tap, but keep active state */
+@media (hover: none) and (pointer: coarse) {
+    .post-content .video-download:focus:not(:active) {
+        color: var(--text-dim);
+    }
+}
+
+.post-content .audio-download {
+    flex-shrink: 0;
+    position: absolute;
+    right: 0;
+    color: var(--text-dim);
+    transition: color 0.2s;
+}
+
+.post-content .audio-download:hover {
+    color: var(--accent-color);
+}
+
+.post-content .audio-download:active {
+    color: var(--accent-color);
+}
+
+/* Prevent stuck focus state on mobile after tap, but keep active state */
+@media (hover: none) and (pointer: coarse) {
+    .post-content .audio-download:focus:not(:active) {
+        color: var(--text-dim);
+    }
+}
+
 .post-content code {
     font-family: 'Fira Code', monospace;
     background-color: var(--bg-elevated);
@@ -645,7 +726,7 @@ main {
     background: transparent;
     border: none;
     cursor: pointer;
-    transition: all 0.2s;
+    transition: color 0.2s;
     flex-shrink: 0;
     padding: 0;
     margin: 0;
@@ -656,27 +737,39 @@ main {
     align-items: center;
     justify-content: center;
     text-decoration: none;
+    color: var(--text-dim);
 }
 
-.audio-button img {
+.audio-button span {
     width: 24px;
     height: 24px;
-    filter: invert(71%) sepia(13%) saturate(1547%) hue-rotate(215deg) brightness(91%) contrast(89%);
-    transition: filter 0.2s;
+    display: flex;
+    align-items: center;
+    justify-content: center;
 }
 
-.audio-button:hover img {
-    filter: invert(85%) sepia(13%) saturate(1547%) hue-rotate(215deg) brightness(95%) contrast(89%);
+.audio-button .audio-play-icon {
+    width: 32px;
+    height: 32px;
 }
 
-.audio-button:active img {
-    filter: invert(85%) sepia(13%) saturate(1547%) hue-rotate(215deg) brightness(95%) contrast(89%);
+.audio-button span svg {
+    width: 100%;
+    height: 100%;
+}
+
+.audio-button:hover {
+    color: var(--accent-color);
+}
+
+.audio-button:active {
+    color: var(--accent-color);
 }
 
 /* Prevent stuck focus state on mobile after tap, but keep active state */
 @media (hover: none) and (pointer: coarse) {
-    .audio-button:focus:not(:active) img {
-        filter: invert(71%) sepia(13%) saturate(1547%) hue-rotate(215deg) brightness(91%) contrast(89%);
+    .audio-button:focus:not(:active) {
+        color: var(--text-dim);
     }
 }
 
@@ -688,48 +781,25 @@ main {
     background-color: transparent;
 }
 
-.audio-play-pause img {
+.audio-play-pause svg {
     width: 32px;
     height: 32px;
+    color: var(--text-dim);
+    transition: color 0.2s;
 }
 
-.audio-play-pause:hover img {
-    filter: invert(85%) sepia(13%) saturate(1547%) hue-rotate(215deg) brightness(95%) contrast(89%);
+.audio-play-pause:hover svg {
+    color: var(--accent-color);
 }
 
-.audio-play-pause:active img {
-    filter: invert(85%) sepia(13%) saturate(1547%) hue-rotate(215deg) brightness(95%) contrast(89%);
-}
-
-/* Prevent stuck focus state on mobile after tap, but keep active state */
-@media (hover: none) and (pointer: coarse) {
-    .audio-play-pause:focus:not(:active) img {
-        filter: invert(71%) sepia(13%) saturate(1547%) hue-rotate(215deg) brightness(91%) contrast(89%);
-    }
-}
-
-.audio-download {
-    flex-shrink: 0;
-    position: absolute;
-    right: 0;
-}
-
-.audio-download img {
-    filter: invert(71%) sepia(13%) saturate(1547%) hue-rotate(215deg) brightness(91%) contrast(89%);
-}
-
-.audio-download:hover img {
-    filter: invert(85%) sepia(13%) saturate(1547%) hue-rotate(215deg) brightness(95%) contrast(89%);
-}
-
-.audio-download:active img {
-    filter: invert(85%) sepia(13%) saturate(1547%) hue-rotate(215deg) brightness(95%) contrast(89%);
+.audio-play-pause:active svg {
+    color: var(--accent-color);
 }
 
 /* Prevent stuck focus state on mobile after tap, but keep active state */
 @media (hover: none) and (pointer: coarse) {
-    .audio-download:focus:not(:active) img {
-        filter: invert(71%) sepia(13%) saturate(1547%) hue-rotate(215deg) brightness(91%) contrast(89%);
+    .audio-play-pause:focus:not(:active) svg {
+        color: var(--text-dim);
     }
 }
 
@@ -756,12 +826,13 @@ main {
     align-items: center;
     justify-content: center;
     flex-shrink: 0;
-    transition: opacity 0.2s;
+    transition: color 0.2s;
     outline: none;
+    color: var(--text-dim);
 }
 
 .audio-volume-icon-btn:hover {
-    opacity: 0.8;
+    color: var(--accent-color);
 }
 
 .audio-volume-icon-btn:focus {
@@ -769,13 +840,13 @@ main {
 }
 
 .audio-volume-icon-btn:active {
-    opacity: 0.8;
+    color: var(--accent-color);
 }
 
 /* Prevent stuck focus state on mobile after tap, but keep active state */
 @media (hover: none) and (pointer: coarse) {
     .audio-volume-icon-btn:focus:not(:active) {
-        opacity: 1;
+        color: var(--text-dim);
     }
 }
 
@@ -783,7 +854,6 @@ main {
     width: 24px;
     height: 24px;
     flex-shrink: 0;
-    filter: invert(71%) sepia(13%) saturate(1547%) hue-rotate(215deg) brightness(91%) contrast(89%);
 }
 
 .audio-volume-track {
@@ -1008,7 +1078,7 @@ main {
     background: transparent;
     border: none;
     cursor: pointer;
-    transition: all 0.2s;
+    transition: color 0.2s;
     flex-shrink: 0;
     padding: 0;
     margin: 0;
@@ -1019,27 +1089,39 @@ main {
     align-items: center;
     justify-content: center;
     text-decoration: none;
+    color: var(--text-dim);
 }
 
-.video-button img {
+.video-button span {
     width: 24px;
     height: 24px;
-    filter: invert(71%) sepia(13%) saturate(1547%) hue-rotate(215deg) brightness(91%) contrast(89%);
-    transition: filter 0.2s;
+    display: flex;
+    align-items: center;
+    justify-content: center;
 }
 
-.video-button:hover img {
-    filter: invert(85%) sepia(13%) saturate(1547%) hue-rotate(215deg) brightness(95%) contrast(89%);
+.video-button .video-play-icon {
+    width: 32px;
+    height: 32px;
 }
 
-.video-button:active img {
-    filter: invert(85%) sepia(13%) saturate(1547%) hue-rotate(215deg) brightness(95%) contrast(89%);
+.video-button span svg {
+    width: 100%;
+    height: 100%;
+}
+
+.video-button:hover {
+    color: var(--accent-color);
+}
+
+.video-button:active {
+    color: var(--accent-color);
 }
 
 /* Prevent stuck focus state on mobile after tap, but keep active state */
 @media (hover: none) and (pointer: coarse) {
-    .video-button:focus:not(:active) img {
-        filter: invert(71%) sepia(13%) saturate(1547%) hue-rotate(215deg) brightness(91%) contrast(89%);
+    .video-button:focus:not(:active) {
+        color: var(--text-dim);
     }
 }
 
@@ -1051,48 +1133,30 @@ main {
     background-color: transparent;
 }
 
-.video-play-pause img {
+.video-play-pause span {
+    pointer-events: none;
+}
+
+.video-play-pause svg {
     width: 32px;
     height: 32px;
+    color: var(--text-dim);
+    transition: color 0.2s;
+    pointer-events: none;
 }
 
-.video-play-pause:hover img {
-    filter: invert(85%) sepia(13%) saturate(1547%) hue-rotate(215deg) brightness(95%) contrast(89%);
+.video-play-pause:hover svg {
+    color: var(--accent-color);
 }
 
-.video-play-pause:active img {
-    filter: invert(85%) sepia(13%) saturate(1547%) hue-rotate(215deg) brightness(95%) contrast(89%);
-}
-
-/* Prevent stuck focus state on mobile after tap, but keep active state */
-@media (hover: none) and (pointer: coarse) {
-    .video-play-pause:focus:not(:active) img {
-        filter: invert(71%) sepia(13%) saturate(1547%) hue-rotate(215deg) brightness(91%) contrast(89%);
-    }
-}
-
-.video-download {
-    flex-shrink: 0;
-    position: absolute;
-    right: 40px;
-}
-
-.video-download img {
-    filter: invert(71%) sepia(13%) saturate(1547%) hue-rotate(215deg) brightness(91%) contrast(89%);
-}
-
-.video-download:hover img {
-    filter: invert(85%) sepia(13%) saturate(1547%) hue-rotate(215deg) brightness(95%) contrast(89%);
-}
-
-.video-download:active img {
-    filter: invert(85%) sepia(13%) saturate(1547%) hue-rotate(215deg) brightness(95%) contrast(89%);
+.video-play-pause:active svg {
+    color: var(--accent-color);
 }
 
 /* Prevent stuck focus state on mobile after tap, but keep active state */
 @media (hover: none) and (pointer: coarse) {
-    .video-download:focus:not(:active) img {
-        filter: invert(71%) sepia(13%) saturate(1547%) hue-rotate(215deg) brightness(91%) contrast(89%);
+    .video-play-pause:focus:not(:active) svg {
+        color: var(--text-dim);
     }
 }
 
@@ -1102,22 +1166,23 @@ main {
     right: 0;
 }
 
-.video-fullscreen img {
-    filter: invert(71%) sepia(13%) saturate(1547%) hue-rotate(215deg) brightness(91%) contrast(89%);
+.video-fullscreen svg {
+    color: var(--text-dim);
+    transition: color 0.2s;
 }
 
-.video-fullscreen:hover img {
-    filter: invert(85%) sepia(13%) saturate(1547%) hue-rotate(215deg) brightness(95%) contrast(89%);
+.video-fullscreen:hover svg {
+    color: var(--accent-color);
 }
 
-.video-fullscreen:active img {
-    filter: invert(85%) sepia(13%) saturate(1547%) hue-rotate(215deg) brightness(95%) contrast(89%);
+.video-fullscreen:active svg {
+    color: var(--accent-color);
 }
 
 /* Prevent stuck focus state on mobile after tap, but keep active state */
 @media (hover: none) and (pointer: coarse) {
-    .video-fullscreen:focus:not(:active) img {
-        filter: invert(71%) sepia(13%) saturate(1547%) hue-rotate(215deg) brightness(91%) contrast(89%);
+    .video-fullscreen:focus:not(:active) svg {
+        color: var(--text-dim);
     }
 }
 
@@ -1144,12 +1209,13 @@ main {
     align-items: center;
     justify-content: center;
     flex-shrink: 0;
-    transition: opacity 0.2s;
+    transition: color 0.2s;
     outline: none;
+    color: var(--text-dim);
 }
 
 .video-volume-icon-btn:hover {
-    opacity: 0.8;
+    color: var(--accent-color);
 }
 
 .video-volume-icon-btn:focus {
@@ -1157,13 +1223,13 @@ main {
 }
 
 .video-volume-icon-btn:active {
-    opacity: 0.8;
+    color: var(--accent-color);
 }
 
 /* Prevent stuck focus state on mobile after tap, but keep active state */
 @media (hover: none) and (pointer: coarse) {
     .video-volume-icon-btn:focus:not(:active) {
-        opacity: 1;
+        color: var(--text-dim);
     }
 }
 
@@ -1171,7 +1237,6 @@ main {
     width: 24px;
     height: 24px;
     flex-shrink: 0;
-    filter: invert(71%) sepia(13%) saturate(1547%) hue-rotate(215deg) brightness(91%) contrast(89%);
 }
 
 .video-volume-track {
@@ -1837,12 +1902,13 @@ footer a:hover {
     display: flex;
     align-items: center;
     justify-content: center;
-    transition: transform 0.2s;
+    color: var(--text-dim);
+    transition: color 0.2s;
 }
 
 .script-start:hover,
 .script-restart:hover {
-    transform: scale(1.1);
+    color: var(--accent-color);
 }
 
 .script-start:disabled,
@@ -1851,15 +1917,23 @@ footer a:hover {
     cursor: not-allowed;
 }
 
-.script-start img,
-.script-restart img {
-    width: 100%;
-    height: 100%;
-    filter: brightness(0) saturate(100%) invert(83%) sepia(20%) saturate(1064%) hue-rotate(215deg) brightness(103%) contrast(101%);
+.script-start .script-icon,
+.script-restart .script-icon {
+    width: 24px;
+    height: 24px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.script-start .script-icon svg,
+.script-restart .script-icon svg {
+    width: 24px;
+    height: 24px;
 }
 
 .script-running-indicator {
-    font-size: 0.85rem;
+    font-size: 0.8rem;
     color: var(--text-dim);
     font-family: 'Courier New', Courier, monospace;
     display: inline;

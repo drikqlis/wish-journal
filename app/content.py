@@ -131,7 +131,7 @@ class PythonScriptBlockProcessor(BlockProcessor):
           </div>
           <div class="script-controls">
             <button class="script-start" aria-label="Uruchom skrypt">
-              <img src="/static/images/icons/restart.svg" alt="">
+              <span class="script-icon"></span>
             </button>
             <span class="script-status idle">Naciśnij przycisk aby rozpocząć</span>
           </div>
@@ -213,10 +213,10 @@ class PythonScriptBlockProcessor(BlockProcessor):
         button.set('class', 'script-start')
         button.set('aria-label', 'Uruchom skrypt')
 
-        # Button icon (play initially, will change to restart)
-        icon = etree.SubElement(button, 'img')
-        icon.set('src', '/static/images/icons/play.svg')
-        icon.set('alt', '')
+        # Button icon (play initially, will change to restart via JS)
+        # Use a span wrapper for inline SVG (populated by JavaScript using getIcon())
+        icon = etree.SubElement(button, 'span')
+        icon.set('class', 'script-icon')
 
         # Running indicator (hidden by default)
         indicator = etree.SubElement(controls, 'span')

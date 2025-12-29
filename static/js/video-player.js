@@ -26,7 +26,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 <div class="video-buttons">
                     <div class="video-volume-container">
                         <button class="video-volume-icon-btn" aria-label="Mute">
-                            <img src="/static/images/icons/volume-high.svg" class="video-volume-icon" alt="Volume">
+                            <span class="video-volume-icon">${getIcon('volume-high')}</span>
                         </button>
                         <div class="video-volume-track media-volume-track">
                             <input type="range" class="video-volume media-volume-slider" min="0" max="100" value="100">
@@ -34,13 +34,13 @@ document.addEventListener('DOMContentLoaded', function() {
                         </div>
                     </div>
                     <button class="video-button video-play-pause" aria-label="Play">
-                        <img src="/static/images/icons/play.svg" class="video-play-icon" alt="Play">
+                        <span class="video-play-icon">${getIcon('play')}</span>
                     </button>
                     <a class="video-button video-download" download aria-label="Download">
-                        <img src="/static/images/icons/download.svg" class="video-download-icon" alt="Download">
+                        <span class="video-download-icon">${getIcon('download')}</span>
                     </a>
                     <button class="video-button video-fullscreen" aria-label="Fullscreen">
-                        <img src="/static/images/icons/fullscreen.svg" class="video-fullscreen-icon" alt="Fullscreen">
+                        <span class="video-fullscreen-icon">${getIcon('fullscreen')}</span>
                     </button>
                 </div>
             </div>
@@ -165,7 +165,7 @@ document.addEventListener('DOMContentLoaded', function() {
         // Setup duration display using shared utility
         MediaPlayerUtils.setupDurationDisplay(video, duration);
 
-        // Play/Pause
+        // Helper function for play/pause with scroll position fix
         const togglePlayPause = () => {
             // Store current scroll position
             const scrollX = window.scrollX || window.pageXOffset;
@@ -173,13 +173,11 @@ document.addEventListener('DOMContentLoaded', function() {
 
             if (video.paused) {
                 video.play().catch(() => {});
-                playIcon.src = '/static/images/icons/pause.svg';
-                playIcon.alt = 'Pause';
+                playIcon.innerHTML = getIcon('pause');
                 playBtn.setAttribute('aria-label', 'Pause');
             } else {
                 video.pause();
-                playIcon.src = '/static/images/icons/play.svg';
-                playIcon.alt = 'Play';
+                playIcon.innerHTML = getIcon('play');
                 playBtn.setAttribute('aria-label', 'Play');
             }
 
@@ -191,7 +189,10 @@ document.addEventListener('DOMContentLoaded', function() {
             });
         };
 
+        // Setup play/pause button
         playBtn.addEventListener('click', togglePlayPause);
+
+        // Also allow clicking on video itself to toggle play/pause
         video.addEventListener('click', togglePlayPause);
 
         // Make clicking on empty areas of controls also toggle play/pause
@@ -216,8 +217,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
         // Reset on end
         video.addEventListener('ended', () => {
-            playIcon.src = '/static/images/icons/play.svg';
-            playIcon.alt = 'Play';
+            playIcon.innerHTML = getIcon('play');
             playBtn.setAttribute('aria-label', 'Play');
             progressBar.style.width = '0%';
         });
@@ -424,14 +424,12 @@ document.addEventListener('DOMContentLoaded', function() {
         const updateFullscreenIcon = () => {
             if (document.fullscreenElement === fullscreenWrapper || document.webkitFullscreenElement === fullscreenWrapper ||
                 document.mozFullScreenElement === fullscreenWrapper || document.msFullscreenElement === fullscreenWrapper) {
-                fullscreenIcon.src = '/static/images/icons/fullscreen-exit.svg';
-                fullscreenIcon.alt = 'Exit Fullscreen';
+                fullscreenIcon.innerHTML = getIcon('fullscreen-exit');
                 fullscreenBtn.setAttribute('aria-label', 'Exit Fullscreen');
                 fullscreenWrapper.classList.add('is-fullscreen');
                 showControlsOnFullscreen();
             } else {
-                fullscreenIcon.src = '/static/images/icons/fullscreen.svg';
-                fullscreenIcon.alt = 'Fullscreen';
+                fullscreenIcon.innerHTML = getIcon('fullscreen');
                 fullscreenBtn.setAttribute('aria-label', 'Fullscreen');
                 fullscreenWrapper.classList.remove('is-fullscreen');
                 showControlsOnFullscreen();
