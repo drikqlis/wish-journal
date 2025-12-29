@@ -165,9 +165,6 @@ document.addEventListener('DOMContentLoaded', function() {
         // Setup duration display using shared utility
         MediaPlayerUtils.setupDurationDisplay(video, duration);
 
-        // Force load metadata
-        video.load();
-
         // Play/Pause
         const togglePlayPause = () => {
             // Store current scroll position

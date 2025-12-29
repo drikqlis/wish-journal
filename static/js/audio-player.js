@@ -85,9 +85,6 @@ document.addEventListener('DOMContentLoaded', function() {
         // Setup duration display using shared utility
         MediaPlayerUtils.setupDurationDisplay(audio, duration);
 
-        // Force load metadata
-        audio.load();
-
         // Setup play/pause using shared utility
         MediaPlayerUtils.setupPlayPause(audio, playBtn, playIcon);
 
