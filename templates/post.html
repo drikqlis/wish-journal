@@ -535,8 +535,12 @@ document.addEventListener('DOMContentLoaded', function() {
 
         // Play/Pause
         const togglePlayPause = () => {
+            // Store current scroll position
+            const scrollX = window.scrollX || window.pageXOffset;
+            const scrollY = window.scrollY || window.pageYOffset;
+
             if (video.paused) {
-                video.play();
+                video.play().catch(() => {});
                 playIcon.src = '/static/pause.svg';
                 playIcon.alt = 'Pause';
                 playBtn.setAttribute('aria-label', 'Pause');
@@ -546,6 +550,13 @@ document.addEventListener('DOMContentLoaded', function() {
                 playIcon.alt = 'Play';
                 playBtn.setAttribute('aria-label', 'Play');
             }
+
+            // Restore scroll position if it changed
+            requestAnimationFrame(() => {
+                if (window.scrollX !== scrollX || window.scrollY !== scrollY) {
+                    window.scrollTo(scrollX, scrollY);
+                }
+            });
         };
 
         playBtn.addEventListener('click', togglePlayPause);
