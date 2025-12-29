@@ -43,7 +43,7 @@
             this.output.appendChild(this.inputContainer);
 
             // Input is always visible and enabled (script controls when to use it)
-            this.enableInput();
+            this.enableInput(false); // Don't focus initially
 
             // Make terminal clickable initially (before first run)
             this.terminal.classList.add('clickable');
@@ -83,8 +83,8 @@
             // Clear output
             this.clearOutput();
 
-            // Re-enable input for new script run
-            this.enableInput();
+            // Re-enable input for new script run (don't focus yet, will focus on connection)
+            this.enableInput(false);
 
             // Clear indicator text
             this.runningIndicator.textContent = '';
@@ -322,11 +322,14 @@
 
         /**
          * Enable input field
+         * @param {boolean} shouldFocus - Whether to focus the input field (default: true)
          */
-        enableInput() {
+        enableInput(shouldFocus = true) {
             this.inputContainer.classList.add('visible');
             this.input.disabled = false;
-            this.input.focus();
+            if (shouldFocus) {
+                this.input.focus();
+            }
         }
 
         /**
