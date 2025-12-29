@@ -7,6 +7,7 @@
     <meta name="darkreader-lock">
     <title>{% block title %}Wish Journal{% endblock %}</title>
     <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/interactive-widgets.css') }}">
     <link rel="icon" type="image/svg+xml" href="{{ url_for('static', filename='images/favicon.ico') }}">
     {% block head %}{% endblock %}
 </head>
@@ -41,5 +42,6 @@
     </footer>
 
     <script src="{{ url_for('static', filename='js/svg-icons.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/interactive-widgets.js') }}"></script>
 </body>
 </html>

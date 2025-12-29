@@ -234,6 +234,77 @@ class PythonScriptExtension(Extension):
         )
 
 
+class InteractiveWidgetBlockProcessor(BlockProcessor):
+    """Custom markdown processor for web-native interactive widgets.
+
+    Syntax:
+        :::widget type="terminal-sim" title="Widget Title" config='{"key": "value"}'
+        :::
+
+    Generates HTML structure:
+        <div class="interactive-widget" data-widget-type="terminal-sim" data-config='{"key": "value"}'>
+          <div class="widget-title">Widget Title</div>
+        </div>
+
+    The JavaScript framework (interactive-widgets.js) handles widget initialization.
+    """
+
+    RE_TYPE = re.compile(r'type="([^"]*)"')
+    RE_TITLE = re.compile(r'title="([^"]*)"')
+    RE_CONFIG = re.compile(r"config='([^']*)'")
+
+    def test(self, parent, block):
+        """Check if block starts with :::widget"""
+        lines = block.split('\n')
+        return lines[0].strip().startswith(':::widget')
+
+    def run(self, parent, blocks):
+        """Parse the widget block and generate HTML."""
+        block = blocks.pop(0)
+        lines = block.split('\n')
+
+        # Parse first line for attributes
+        first_line = lines[0]
+
+        # Extract type (required)
+        type_match = self.RE_TYPE.search(first_line)
+        if not type_match:
+            logger.warning("widget block missing required type attribute")
+            return False
+
+        widget_type = type_match.group(1)
+
+        # Extract title (optional, defaults to widget type)
+        title_match = self.RE_TITLE.search(first_line)
+        title = title_match.group(1) if title_match else widget_type.replace('-', ' ').title()
+
+        # Extract config (optional JSON string)
+        config_match = self.RE_CONFIG.search(first_line)
+        config_json = config_match.group(1) if config_match else '{}'
+
+        # Create wrapper div with data attributes
+        wrapper = etree.SubElement(parent, 'div')
+        wrapper.set('class', 'interactive-widget')
+        wrapper.set('data-widget-type', widget_type)
+        wrapper.set('data-config', config_json)
+
+        # Create title header
+        title_div = etree.SubElement(wrapper, 'div')
+        title_div.set('class', 'widget-title')
+        title_div.text = title
+
+        return True
+
+
+class InteractiveWidgetExtension(Extension):
+    """Markdown extension for web-native interactive widgets."""
+
+    def extendMarkdown(self, md):
+        md.parser.blockprocessors.register(
+            InteractiveWidgetBlockProcessor(md.parser), 'interactive-widget', 177
+        )
+
+
 @dataclass
 class Post:
     slug: str
@@ -265,12 +336,15 @@ def parse_frontmatter(content: str) -> tuple[dict, str]:
 
 
 def strip_media_from_text(text: str) -> str:
-    """Remove images, audio, video, galleries, and Python scripts from markdown/HTML text."""
+    """Remove images, audio, video, galleries, Python scripts, and interactive widgets from markdown/HTML text."""
     # Remove gallery blocks: :::gallery ... :::
     text = re.sub(r':::gallery[^\n]*\n.*?:::', '', text, flags=re.DOTALL)
 
     # Remove python-script blocks: :::python-script ... :::
     text = re.sub(r':::python-script[^\n]*\n.*?:::', '', text, flags=re.DOTALL)
+
+    # Remove widget blocks: :::widget ... :::
+    text = re.sub(r':::widget[^\n]*\n.*?:::', '', text, flags=re.DOTALL)
 
     # Remove markdown images: ![alt](url)
     text = re.sub(r'!\[([^\]]*)\]\([^\)]+\)', '', text)
@@ -307,7 +381,8 @@ def load_posts() -> None:
         "tables",
         "nl2br",
         GalleryExtension(),
-        PythonScriptExtension()
+        PythonScriptExtension(),
+        InteractiveWidgetExtension()
     ])
 
     for file_path in posts_dir.glob("*.md"):

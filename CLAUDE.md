@@ -58,7 +58,13 @@ wish-journal/
 │   ├── post.html                # Post detail with comments
 │   └── 404.html                 # 404 error page
 ├── static/                       # Frontend assets
-│   ├── style.css                # Custom dark purple theme
+│   ├── css/
+│   │   ├── style.css            # Custom dark purple theme
+│   │   └── interactive-widgets.css  # Widget styling
+│   ├── js/
+│   │   ├── interactive-widgets.js   # Web-native widget framework
+│   │   ├── python-script.js     # Python script execution client
+│   │   └── ...                  # Other JS modules
 │   └── favicon.ico              # Site favicon
 ├── content/                      # Content storage (dynamic)
 │   ├── posts/                   # Markdown post files (*.md)
@@ -109,8 +115,11 @@ wish-journal/
    Post content in Markdown...
    ```
 2. On startup, `load_posts()` reads and parses all `.md` files
-3. Markdown body converted to HTML
-4. Excerpts generated (first 500 chars, media stripped)
+3. Markdown body converted to HTML with custom extensions:
+   - **Gallery blocks** (`:::gallery`) - Image galleries with lightbox
+   - **Python script execution** (`:::python-script`) - Server-side Python via SSE
+   - **Interactive widgets** (`:::widget`) - Client-side web-native widgets
+4. Excerpts generated (first 500 chars, media/widgets stripped)
 5. Posts cached in memory, sorted by date (newest first)
 6. **File watcher** monitors changes and auto-reloads content
 
@@ -310,6 +319,7 @@ Latest improvements focus on:
 - **README.md** - Setup and installation guide
 - **USERS.md** - User management instructions
 - **AUDIO_PLAYER_USAGE.md** - Audio player feature guide
+- **INTERACTIVE_WIDGETS.md** - Web-native interactive widgets system (NEW!)
 
 ---
 
