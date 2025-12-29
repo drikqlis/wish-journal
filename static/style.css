@@ -1713,3 +1713,16 @@ footer a:hover {
         grid-template-columns: repeat(3, 1fr);
     }
 }
+
+/* GLightbox Custom Styling */
+.gclose svg,
+.gnext svg,
+.gprev svg {
+    filter: invert(1) invert(85%) sepia(13%) saturate(1547%) hue-rotate(215deg) brightness(105%) contrast(89%);
+}
+
+.gclose:hover svg,
+.gnext:hover svg,
+.gprev:hover svg {
+    filter: invert(1) invert(95%) sepia(13%) saturate(1547%) hue-rotate(215deg) brightness(110%) contrast(89%);
+}
