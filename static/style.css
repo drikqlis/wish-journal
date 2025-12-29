@@ -669,6 +669,17 @@ main {
     filter: invert(85%) sepia(13%) saturate(1547%) hue-rotate(215deg) brightness(95%) contrast(89%);
 }
 
+.audio-button:active img {
+    filter: invert(85%) sepia(13%) saturate(1547%) hue-rotate(215deg) brightness(95%) contrast(89%);
+}
+
+/* Prevent stuck focus state on mobile after tap, but keep active state */
+@media (hover: none) and (pointer: coarse) {
+    .audio-button:focus:not(:active) img {
+        filter: invert(71%) sepia(13%) saturate(1547%) hue-rotate(215deg) brightness(91%) contrast(89%);
+    }
+}
+
 .audio-play-pause {
     width: 32px;
     height: 32px;
@@ -686,6 +697,17 @@ main {
     filter: invert(85%) sepia(13%) saturate(1547%) hue-rotate(215deg) brightness(95%) contrast(89%);
 }
 
+.audio-play-pause:active img {
+    filter: invert(85%) sepia(13%) saturate(1547%) hue-rotate(215deg) brightness(95%) contrast(89%);
+}
+
+/* Prevent stuck focus state on mobile after tap, but keep active state */
+@media (hover: none) and (pointer: coarse) {
+    .audio-play-pause:focus:not(:active) img {
+        filter: invert(71%) sepia(13%) saturate(1547%) hue-rotate(215deg) brightness(91%) contrast(89%);
+    }
+}
+
 .audio-download {
     flex-shrink: 0;
     position: absolute;
@@ -698,6 +720,17 @@ main {
 
 .audio-download:hover img {
     filter: invert(85%) sepia(13%) saturate(1547%) hue-rotate(215deg) brightness(95%) contrast(89%);
+}
+
+.audio-download:active img {
+    filter: invert(85%) sepia(13%) saturate(1547%) hue-rotate(215deg) brightness(95%) contrast(89%);
+}
+
+/* Prevent stuck focus state on mobile after tap, but keep active state */
+@media (hover: none) and (pointer: coarse) {
+    .audio-download:focus:not(:active) img {
+        filter: invert(71%) sepia(13%) saturate(1547%) hue-rotate(215deg) brightness(91%) contrast(89%);
+    }
 }
 
 .audio-volume-container {
@@ -733,6 +766,17 @@ main {
 
 .audio-volume-icon-btn:focus {
     outline: none;
+}
+
+.audio-volume-icon-btn:active {
+    opacity: 0.8;
+}
+
+/* Prevent stuck focus state on mobile after tap, but keep active state */
+@media (hover: none) and (pointer: coarse) {
+    .audio-volume-icon-btn:focus:not(:active) {
+        opacity: 1;
+    }
 }
 
 .audio-volume-icon {
@@ -988,6 +1032,17 @@ main {
     filter: invert(85%) sepia(13%) saturate(1547%) hue-rotate(215deg) brightness(95%) contrast(89%);
 }
 
+.video-button:active img {
+    filter: invert(85%) sepia(13%) saturate(1547%) hue-rotate(215deg) brightness(95%) contrast(89%);
+}
+
+/* Prevent stuck focus state on mobile after tap, but keep active state */
+@media (hover: none) and (pointer: coarse) {
+    .video-button:focus:not(:active) img {
+        filter: invert(71%) sepia(13%) saturate(1547%) hue-rotate(215deg) brightness(91%) contrast(89%);
+    }
+}
+
 .video-play-pause {
     width: 32px;
     height: 32px;
@@ -1005,6 +1060,17 @@ main {
     filter: invert(85%) sepia(13%) saturate(1547%) hue-rotate(215deg) brightness(95%) contrast(89%);
 }
 
+.video-play-pause:active img {
+    filter: invert(85%) sepia(13%) saturate(1547%) hue-rotate(215deg) brightness(95%) contrast(89%);
+}
+
+/* Prevent stuck focus state on mobile after tap, but keep active state */
+@media (hover: none) and (pointer: coarse) {
+    .video-play-pause:focus:not(:active) img {
+        filter: invert(71%) sepia(13%) saturate(1547%) hue-rotate(215deg) brightness(91%) contrast(89%);
+    }
+}
+
 .video-download {
     flex-shrink: 0;
     position: absolute;
@@ -1019,6 +1085,17 @@ main {
     filter: invert(85%) sepia(13%) saturate(1547%) hue-rotate(215deg) brightness(95%) contrast(89%);
 }
 
+.video-download:active img {
+    filter: invert(85%) sepia(13%) saturate(1547%) hue-rotate(215deg) brightness(95%) contrast(89%);
+}
+
+/* Prevent stuck focus state on mobile after tap, but keep active state */
+@media (hover: none) and (pointer: coarse) {
+    .video-download:focus:not(:active) img {
+        filter: invert(71%) sepia(13%) saturate(1547%) hue-rotate(215deg) brightness(91%) contrast(89%);
+    }
+}
+
 .video-fullscreen {
     flex-shrink: 0;
     position: absolute;
@@ -1031,6 +1108,17 @@ main {
 
 .video-fullscreen:hover img {
     filter: invert(85%) sepia(13%) saturate(1547%) hue-rotate(215deg) brightness(95%) contrast(89%);
+}
+
+.video-fullscreen:active img {
+    filter: invert(85%) sepia(13%) saturate(1547%) hue-rotate(215deg) brightness(95%) contrast(89%);
+}
+
+/* Prevent stuck focus state on mobile after tap, but keep active state */
+@media (hover: none) and (pointer: coarse) {
+    .video-fullscreen:focus:not(:active) img {
+        filter: invert(71%) sepia(13%) saturate(1547%) hue-rotate(215deg) brightness(91%) contrast(89%);
+    }
 }
 
 .video-volume-container {
@@ -1066,6 +1154,17 @@ main {
 
 .video-volume-icon-btn:focus {
     outline: none;
+}
+
+.video-volume-icon-btn:active {
+    opacity: 0.8;
+}
+
+/* Prevent stuck focus state on mobile after tap, but keep active state */
+@media (hover: none) and (pointer: coarse) {
+    .video-volume-icon-btn:focus:not(:active) {
+        opacity: 1;
+    }
 }
 
 .video-volume-icon {
