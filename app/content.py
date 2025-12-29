@@ -265,7 +265,13 @@ def parse_frontmatter(content: str) -> tuple[dict, str]:
 
 
 def strip_media_from_text(text: str) -> str:
-    """Remove images, audio, and video from markdown/HTML text."""
+    """Remove images, audio, video, galleries, and Python scripts from markdown/HTML text."""
+    # Remove gallery blocks: :::gallery ... :::
+    text = re.sub(r':::gallery[^\n]*\n.*?:::', '', text, flags=re.DOTALL)
+
+    # Remove python-script blocks: :::python-script ... :::
+    text = re.sub(r':::python-script[^\n]*\n.*?:::', '', text, flags=re.DOTALL)
+
     # Remove markdown images: ![alt](url)
     text = re.sub(r'!\[([^\]]*)\]\([^\)]+\)', '', text)
 
