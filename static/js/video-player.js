@@ -26,7 +26,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 <div class="video-buttons">
                     <div class="video-volume-container">
                         <button class="video-volume-icon-btn" aria-label="Mute">
-                            <img src="/static/volume-high.svg" class="video-volume-icon" alt="Volume">
+                            <img src="/static/images/icons/volume-high.svg" class="video-volume-icon" alt="Volume">
                         </button>
                         <div class="video-volume-track media-volume-track">
                             <input type="range" class="video-volume media-volume-slider" min="0" max="100" value="100">
@@ -34,13 +34,13 @@ document.addEventListener('DOMContentLoaded', function() {
                         </div>
                     </div>
                     <button class="video-button video-play-pause" aria-label="Play">
-                        <img src="/static/play.svg" class="video-play-icon" alt="Play">
+                        <img src="/static/images/icons/play.svg" class="video-play-icon" alt="Play">
                     </button>
                     <a class="video-button video-download" download aria-label="Download">
-                        <img src="/static/download.svg" class="video-download-icon" alt="Download">
+                        <img src="/static/images/icons/download.svg" class="video-download-icon" alt="Download">
                     </a>
                     <button class="video-button video-fullscreen" aria-label="Fullscreen">
-                        <img src="/static/fullscreen.svg" class="video-fullscreen-icon" alt="Fullscreen">
+                        <img src="/static/images/icons/fullscreen.svg" class="video-fullscreen-icon" alt="Fullscreen">
                     </button>
                 </div>
             </div>
@@ -176,12 +176,12 @@ document.addEventListener('DOMContentLoaded', function() {
 
             if (video.paused) {
                 video.play().catch(() => {});
-                playIcon.src = '/static/pause.svg';
+                playIcon.src = '/static/images/icons/pause.svg';
                 playIcon.alt = 'Pause';
                 playBtn.setAttribute('aria-label', 'Pause');
             } else {
                 video.pause();
-                playIcon.src = '/static/play.svg';
+                playIcon.src = '/static/images/icons/play.svg';
                 playIcon.alt = 'Play';
                 playBtn.setAttribute('aria-label', 'Play');
             }
@@ -219,7 +219,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
         // Reset on end
         video.addEventListener('ended', () => {
-            playIcon.src = '/static/play.svg';
+            playIcon.src = '/static/images/icons/play.svg';
             playIcon.alt = 'Play';
             playBtn.setAttribute('aria-label', 'Play');
             progressBar.style.width = '0%';
@@ -427,13 +427,13 @@ document.addEventListener('DOMContentLoaded', function() {
         const updateFullscreenIcon = () => {
             if (document.fullscreenElement === fullscreenWrapper || document.webkitFullscreenElement === fullscreenWrapper ||
                 document.mozFullScreenElement === fullscreenWrapper || document.msFullscreenElement === fullscreenWrapper) {
-                fullscreenIcon.src = '/static/fullscreen-exit.svg';
+                fullscreenIcon.src = '/static/images/icons/fullscreen-exit.svg';
                 fullscreenIcon.alt = 'Exit Fullscreen';
                 fullscreenBtn.setAttribute('aria-label', 'Exit Fullscreen');
                 fullscreenWrapper.classList.add('is-fullscreen');
                 showControlsOnFullscreen();
             } else {
-                fullscreenIcon.src = '/static/fullscreen.svg';
+                fullscreenIcon.src = '/static/images/icons/fullscreen.svg';
                 fullscreenIcon.alt = 'Fullscreen';
                 fullscreenBtn.setAttribute('aria-label', 'Fullscreen');
                 fullscreenWrapper.classList.remove('is-fullscreen');

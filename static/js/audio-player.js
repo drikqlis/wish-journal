@@ -36,7 +36,7 @@ document.addEventListener('DOMContentLoaded', function() {
             <div class="audio-buttons">
                 <div class="audio-volume-container">
                     <button class="audio-volume-icon-btn" aria-label="Mute">
-                        <img src="/static/volume-high.svg" class="audio-volume-icon" alt="Volume">
+                        <img src="/static/images/icons/volume-high.svg" class="audio-volume-icon" alt="Volume">
                     </button>
                     <div class="audio-volume-track media-volume-track">
                         <input type="range" class="audio-volume media-volume-slider" min="0" max="100" value="100">
@@ -44,10 +44,10 @@ document.addEventListener('DOMContentLoaded', function() {
                     </div>
                 </div>
                 <button class="audio-button audio-play-pause" aria-label="Play">
-                    <img src="/static/play.svg" class="audio-play-icon" alt="Play">
+                    <img src="/static/images/icons/play.svg" class="audio-play-icon" alt="Play">
                 </button>
                 <a class="audio-button audio-download" download aria-label="Download">
-                    <img src="/static/download.svg" class="audio-download-icon" alt="Download">
+                    <img src="/static/images/icons/download.svg" class="audio-download-icon" alt="Download">
                 </a>
             </div>
         </div>`;
