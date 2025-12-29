@@ -454,10 +454,14 @@ document.addEventListener('DOMContentLoaded', function() {
                 return;
             }
 
-            // Hide controls after 3 seconds of inactivity
-            controlsHideTimer = setTimeout(() => {
-                videoControls.classList.remove('active');
-            }, 3000);
+            // Only hide controls if video is playing
+            // If paused or ended, keep controls visible
+            if (!video.paused && !video.ended) {
+                // Hide controls after 3 seconds of inactivity
+                controlsHideTimer = setTimeout(() => {
+                    videoControls.classList.remove('active');
+                }, 3000);
+            }
         };
 
         const hideControls = () => {
@@ -485,6 +489,30 @@ document.addEventListener('DOMContentLoaded', function() {
 
         // Show controls initially on load
         showControls();
+
+        // Listen for play/pause events to manage control visibility
+        video.addEventListener('play', () => {
+            // When video starts playing, restart the hide timer
+            showControls();
+        });
+
+        video.addEventListener('pause', () => {
+            // When video is paused, show controls and keep them visible
+            videoControls.classList.add('active');
+            if (controlsHideTimer) {
+                clearTimeout(controlsHideTimer);
+                controlsHideTimer = null;
+            }
+        });
+
+        video.addEventListener('ended', () => {
+            // When video ends, show controls and keep them visible
+            videoControls.classList.add('active');
+            if (controlsHideTimer) {
+                clearTimeout(controlsHideTimer);
+                controlsHideTimer = null;
+            }
+        });
 
         let previousVolume = 100;
 
