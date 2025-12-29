@@ -2,7 +2,7 @@
 Script Runner Module - Executes Python scripts with interactive I/O via pexpect.
 
 This module provides server-side subprocess execution for trusted Python scripts
-with real-time terminal emulation, supporting interactive input() calls, ANSI colors,
+with real-time terminal emulation, supporting interactive input() calls
 and keepalive-based timeout tracking.
 """
 
@@ -11,7 +11,6 @@ import threading
 import time
 import logging
 import sys
-import re
 from dataclasses import dataclass, field
 from pathlib import Path
 from typing import Dict, Optional, List
@@ -21,17 +20,9 @@ from flask import current_app
 # Logger for background threads (where current_app is not available)
 logger = logging.getLogger(__name__)
 
-# ANSI escape code pattern for stripping colors
-ANSI_ESCAPE_PATTERN = re.compile(r'\x1B(?:[@-Z\\-_]|\[[0-?]*[ -/]*[@-~])')
-
 # Configuration
 TIMEOUT_SECONDS = 300  # 5 minutes
 KEEPALIVE_INTERVAL = 60  # Client sends keepalive every 60 seconds
-
-
-def strip_ansi_codes(text: str) -> str:
-    """Remove ANSI escape codes from text."""
-    return ANSI_ESCAPE_PATTERN.sub('', text)
 
 
 @dataclass
@@ -126,8 +117,7 @@ def _run_script(session: ScriptSession):
             encoding='utf-8',
             timeout=10,  # Short timeout for read operations
             env={
-                'PYTHONUNBUFFERED': '1',  # Disable output buffering
-                'TERM': 'xterm-256color'  # Enable colorama support
+                'PYTHONUNBUFFERED': '1'  # Disable output buffering
             }
         )
 
@@ -154,16 +144,14 @@ def _run_script(session: ScriptSession):
             try:
                 # Read available output with a short timeout
                 try:
-                    output_text = session.process.read_nonblocking(size=1024, timeout=0.1)
+                    # Read single byte for smooth character-by-character streaming
+                    output_text = session.process.read_nonblocking(size=1, timeout=0.1)
 
                     if output_text:
-                        # Strip ANSI escape codes (colors, cursor movements, etc.)
-                        clean_text = strip_ansi_codes(output_text)
-
                         with session.lock:
                             session.output_queue.append({
                                 'type': 'output',
-                                'text': clean_text
+                                'text': output_text
                             })
 
                 except pexpect.TIMEOUT:

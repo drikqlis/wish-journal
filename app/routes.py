@@ -96,143 +96,179 @@ def media(path: str):
     return response
 
 
-def script_websocket(ws):
+@bp.route("/script/stream")
+@login_required
+def script_stream():
     """
-    WebSocket endpoint for interactive Python script execution.
+    SSE endpoint for streaming Python script output in real-time.
 
     Query parameters:
         path: Script path (relative to content/scripts/)
-        csrf_token: CSRF token for validation
+        session_id: Optional session ID to resume existing session
 
-    Message protocol (JSON):
-        Client -> Server:
-            {type: "input", text: "..."}     - User input
-            {type: "keepalive"}              - Keepalive ping (resets timeout)
-
-        Server -> Client:
-            {type: "output", text: "..."}    - Script output
-            {type: "error", text: "..."}     - Error message
-            {type: "input_request", prompt: "..."} - Script waiting for input
-            {type: "exit", code: 0}          - Script finished
-            {type: "timeout"}                - Execution timeout
+    SSE event types:
+        output: Script output text
+        error: Error message
+        exit: Script finished (with exit code in data)
+        timeout: Execution timeout
+        session: Session ID (sent at start)
     """
-    session_id = None
+    # Validate script path
+    script_path_str = request.args.get("path", "")
+    script_path = content.get_script_path(script_path_str)
 
-    try:
-        # Validate CSRF token
-        csrf_token = request.args.get("csrf_token", "")
-        if not utils.validate_csrf_token(csrf_token):
-            current_app.logger.warning("WebSocket: Invalid CSRF token")
-            ws.send(json.dumps({
-                "type": "error",
-                "text": "Nieprawidłowy token bezpieczeństwa"
-            }))
-            return
+    if not script_path:
+        current_app.logger.warning(f"SSE: Invalid script path: {script_path_str}")
+        return Response(
+            f"event: error\ndata: {json.dumps({'text': f'Nie znaleziono skryptu: {script_path_str}'})}\n\n",
+            mimetype="text/event-stream"
+        )
 
-        # Validate script path
-        script_path_str = request.args.get("path", "")
-        script_path = content.get_script_path(script_path_str)
-
-        if not script_path:
-            current_app.logger.warning(f"WebSocket: Invalid script path: {script_path_str}")
-            ws.send(json.dumps({
-                "type": "error",
-                "text": f"Nie znaleziono skryptu: {script_path_str}"
-            }))
-            return
-
-        # Create and start session
+    # Create or get session
+    session_id = request.args.get("session_id")
+    if not session_id:
         session_id = script_runner.create_session(script_path)
-        current_app.logger.info(f"WebSocket: Created session {session_id}")
+        current_app.logger.info(f"SSE: Created session {session_id}")
 
         if not script_runner.start_execution(session_id):
-            ws.send(json.dumps({
-                "type": "error",
-                "text": "Nie udało się uruchomić skryptu"
-            }))
-            return
+            return Response(
+                f"event: error\ndata: {json.dumps({'text': 'Nie udało się uruchomić skryptu'})}\n\n",
+                mimetype="text/event-stream"
+            )
 
-        # Send session_id to client (for debugging)
-        current_app.logger.debug(f"WebSocket: Session {session_id} started")
-
-        # Main communication loop
-        while True:
-            # Check if session still exists and is running
-            if not script_runner.get_session(session_id):
-                current_app.logger.info(f"WebSocket: Session {session_id} no longer exists")
-                break
-
-            # Poll for output from script (non-blocking)
-            output_messages = script_runner.get_output(session_id)
-            for msg in output_messages:
-                try:
-                    ws.send(json.dumps(msg))
-                except Exception as e:
-                    # Client disconnected - stop processing
-                    current_app.logger.info(f"WebSocket: Client disconnected for session {session_id}")
-                    return
-
-                # If script exited or timed out, break
-                if msg["type"] in ("exit", "timeout"):
-                    current_app.logger.info(
-                        f"WebSocket: Session {session_id} {msg['type']}"
-                    )
-                    # Give client time to receive message
-                    time.sleep(0.1)
-                    return
-
-            # Check for client messages (non-blocking with timeout)
-            try:
-                message = ws.receive(timeout=0.1)
-                if message:
-                    try:
-                        data = json.loads(message)
-                        msg_type = data.get("type")
-
-                        if msg_type == "input":
-                            # Send user input to script
-                            text = data.get("text", "")
-                            if script_runner.send_input(session_id, text):
-                                current_app.logger.debug(
-                                    f"WebSocket: Sent input to session {session_id}"
-                                )
-                            else:
-                                current_app.logger.warning(
-                                    f"WebSocket: Failed to send input to session {session_id}"
-                                )
-
-                        elif msg_type == "keepalive":
-                            # Update activity timestamp to prevent timeout
-                            script_runner.update_activity(session_id)
-                            current_app.logger.debug(
-                                f"WebSocket: Keepalive for session {session_id}"
-                            )
-
-                    except json.JSONDecodeError:
-                        current_app.logger.warning(
-                            f"WebSocket: Invalid JSON from client: {message}"
-                        )
-
-            except Exception as e:
-                # Timeout or connection error - continue loop
-                if "timed out" not in str(e).lower():
-                    current_app.logger.debug(f"WebSocket receive error: {e}")
-
-            # Small sleep to prevent CPU spinning
-            time.sleep(0.05)
-
-    except Exception as e:
-        current_app.logger.error(f"WebSocket error: {e}", exc_info=True)
+    def generate():
+        """Generator function for SSE stream."""
         try:
-            ws.send(json.dumps({
-                "type": "error",
-                "text": "Błąd serwera"
-            }))
-        except:
-            pass
+            # Send session ID to client
+            yield f"event: session\ndata: {json.dumps({'session_id': session_id})}\n\n"
 
-    finally:
-        # Cleanup session
-        if session_id:
-            script_runner.destroy_session(session_id)
-            current_app.logger.info(f"WebSocket: Cleaned up session {session_id}")
+            # Stream output
+            while True:
+                # Check if session still exists
+                if not script_runner.get_session(session_id):
+                    current_app.logger.info(f"SSE: Session {session_id} no longer exists")
+                    break
+
+                # Poll for output from script (non-blocking)
+                output_messages = script_runner.get_output(session_id)
+                for msg in output_messages:
+                    msg_type = msg.get("type", "output")
+
+                    # Send as SSE event
+                    yield f"event: {msg_type}\ndata: {json.dumps(msg)}\n\n"
+
+                    # If script exited or timed out, stop streaming
+                    if msg_type in ("exit", "timeout"):
+                        current_app.logger.info(f"SSE: Session {session_id} {msg_type}")
+                        return
+
+                # Small sleep to prevent CPU spinning
+                time.sleep(0.01)
+
+        except GeneratorExit:
+            # Client disconnected
+            current_app.logger.info(f"SSE: Client disconnected from session {session_id}")
+        except Exception as e:
+            current_app.logger.error(f"SSE error: {e}", exc_info=True)
+            yield f"event: error\ndata: {json.dumps({'text': 'Błąd serwera'})}\n\n"
+
+    return Response(
+        generate(),
+        mimetype="text/event-stream",
+        headers={
+            "Cache-Control": "no-cache",
+            "X-Accel-Buffering": "no",  # Disable nginx buffering
+        }
+    )
+
+
+@bp.route("/script/input", methods=["POST"])
+@login_required
+def script_input():
+    """
+    POST endpoint for sending input to running script.
+
+    JSON body:
+        session_id: Session to send input to
+        text: Input text
+        csrf_token: CSRF token for validation
+    """
+    data = request.get_json()
+    if not data:
+        return {"error": "Invalid JSON"}, 400
+
+    # Validate CSRF token
+    csrf_token = data.get("csrf_token", "")
+    if not utils.validate_csrf_token(csrf_token):
+        current_app.logger.warning("Script input: Invalid CSRF token")
+        return {"error": "Nieprawidłowy token bezpieczeństwa"}, 403
+
+    session_id = data.get("session_id")
+    text = data.get("text", "")
+
+    if not session_id:
+        return {"error": "Missing session_id"}, 400
+
+    if script_runner.send_input(session_id, text):
+        script_runner.update_activity(session_id)  # Reset timeout
+        return {"success": True}
+    else:
+        return {"error": "Failed to send input"}, 500
+
+
+@bp.route("/script/keepalive", methods=["POST"])
+@login_required
+def script_keepalive():
+    """
+    POST endpoint for keepalive pings.
+
+    JSON body:
+        session_id: Session to keep alive
+        csrf_token: CSRF token for validation
+    """
+    data = request.get_json()
+    if not data:
+        return {"error": "Invalid JSON"}, 400
+
+    # Validate CSRF token
+    csrf_token = data.get("csrf_token", "")
+    if not utils.validate_csrf_token(csrf_token):
+        return {"error": "Nieprawidłowy token bezpieczeństwa"}, 403
+
+    session_id = data.get("session_id")
+    if not session_id:
+        return {"error": "Missing session_id"}, 400
+
+    if script_runner.update_activity(session_id):
+        return {"success": True}
+    else:
+        return {"error": "Session not found"}, 404
+
+
+@bp.route("/script/stop", methods=["POST"])
+@login_required
+def script_stop():
+    """
+    POST endpoint for stopping a running script.
+
+    JSON body:
+        session_id: Session to stop
+        csrf_token: CSRF token for validation
+    """
+    data = request.get_json()
+    if not data:
+        return {"error": "Invalid JSON"}, 400
+
+    # Validate CSRF token
+    csrf_token = data.get("csrf_token", "")
+    if not utils.validate_csrf_token(csrf_token):
+        return {"error": "Nieprawidłowy token bezpieczeństwa"}, 403
+
+    session_id = data.get("session_id")
+    if not session_id:
+        return {"error": "Missing session_id"}, 400
+
+    if script_runner.destroy_session(session_id):
+        return {"success": True}
+    else:
+        return {"error": "Session not found"}, 404

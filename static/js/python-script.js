@@ -1,7 +1,7 @@
 /**
- * Python Script Terminal - WebSocket Client
+ * Python Script Terminal - SSE Client
  *
- * Manages interactive Python script execution with real-time I/O via WebSocket.
+ * Manages interactive Python script execution with real-time I/O via Server-Sent Events (SSE).
  * Supports keepalive, timeout handling, and dynamic button state management.
  */
 
@@ -41,9 +41,13 @@
             }
 
             // State
-            this.ws = null;
+            this.eventSource = null;
+            this.sessionId = null;
             this.hasRunOnce = false;
             this.keepaliveInterval = null;
+
+            // ANSI escape sequence buffer
+            this.escapeBuffer = '';
 
             // Move input container into output area (at the top initially)
             this.output.appendChild(this.inputContainer);
@@ -69,9 +73,9 @@
          */
         handleTerminalClick() {
             // Only start if script hasn't been started yet
-            if (!this.hasRunOnce && !this.ws) {
+            if (!this.hasRunOnce && !this.eventSource) {
                 this.handleButtonClick();
-            } else if (this.ws && !this.input.disabled) {
+            } else if (this.eventSource && !this.input.disabled) {
                 // Focus input when clicking terminal while script is running
                 this.input.focus({ preventScroll: true });
             }
@@ -81,13 +85,16 @@
          * Handle start/restart button click
          */
         handleButtonClick() {
-            if (this.ws) {
+            if (this.eventSource) {
                 // Disconnect existing connection (kills running script)
                 this.disconnect();
             }
 
             // Clear output
             this.clearOutput();
+
+            // Reset escape buffer
+            this.escapeBuffer = '';
 
             // Re-enable input for new script run (don't focus yet, will focus on connection)
             this.enableInput(false);
@@ -112,7 +119,7 @@
                 this.terminal.classList.remove('clickable');
             }
 
-            // Connect to WebSocket
+            // Connect to SSE stream
             this.connect();
         }
 
@@ -128,54 +135,53 @@
         }
 
         /**
-         * Connect to WebSocket server
+         * Connect to SSE stream
          */
         connect() {
-            // Get CSRF token from global variable
-            const csrfToken = window.csrfToken || '';
-            if (!csrfToken) {
-                console.error('[ScriptTerminal] Missing CSRF token');
-                return;
-            }
-
-            // Build WebSocket URL
-            const protocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
-            const host = window.location.host;
-            const url = `${protocol}//${host}/script/ws?path=${encodeURIComponent(this.scriptPath)}&csrf_token=${encodeURIComponent(csrfToken)}`;
+            // Build SSE URL
+            const url = `/script/stream?path=${encodeURIComponent(this.scriptPath)}`;
 
             console.log(`[ScriptTerminal] Connecting to ${url}`);
 
             try {
-                this.ws = new WebSocket(url);
+                this.eventSource = new EventSource(url);
 
-                this.ws.onopen = () => this.handleOpen();
-                this.ws.onmessage = (event) => this.handleMessage(event);
-                this.ws.onclose = () => this.handleClose();
-                this.ws.onerror = (error) => this.handleError(error);
+                this.eventSource.addEventListener('session', (event) => this.handleSession(event));
+                this.eventSource.addEventListener('output', (event) => this.handleOutput(event));
+                this.eventSource.addEventListener('error', (event) => this.handleErrorMsg(event));
+                this.eventSource.addEventListener('exit', () => this.handleExit());
+                this.eventSource.addEventListener('timeout', () => this.handleTimeout());
+                this.eventSource.onerror = (error) => this.handleError(error);
             } catch (error) {
                 console.error('[ScriptTerminal] Connection error:', error);
             }
         }
 
         /**
-         * Disconnect from WebSocket
+         * Disconnect from SSE stream
          */
         disconnect() {
-            if (this.ws) {
+            if (this.eventSource) {
                 console.log('[ScriptTerminal] Disconnecting...');
-                this.ws.close();
-                this.ws = null;
+                this.eventSource.close();
+                this.eventSource = null;
+            }
+
+            // Stop script on server side
+            if (this.sessionId) {
+                this.stopScript();
             }
 
             this.stopKeepalive();
         }
 
         /**
-         * Handle WebSocket open event
+         * Handle session event (sent at start with session ID)
          */
-        handleOpen() {
-            console.log('[ScriptTerminal] Connected');
-            // Button stays enabled to allow restart while running
+        handleSession(event) {
+            const data = JSON.parse(event.data);
+            this.sessionId = data.session_id;
+            console.log('[ScriptTerminal] Connected, session:', this.sessionId);
 
             // Show running indicator
             this.runningIndicator.classList.add('running');
@@ -189,87 +195,166 @@
         }
 
         /**
-         * Handle WebSocket message event
+         * Handle output event
          */
-        handleMessage(event) {
-            try {
-                const message = JSON.parse(event.data);
-                console.log('[ScriptTerminal] Received:', message.type);
+        handleOutput(event) {
+            const data = JSON.parse(event.data);
+            this.processOutput(data.text);
+        }
 
-                switch (message.type) {
-                    case 'output':
-                        this.appendOutput(message.text, 'output');
-                        break;
+        /**
+         * Process output text, handling ANSI escape codes
+         */
+        processOutput(text) {
+            // Add to escape buffer to handle sequences split across chunks
+            this.escapeBuffer += text;
 
-                    case 'error':
-                        this.appendOutput(message.text, 'error');
-                        break;
+            // Check for clear screen sequence: ESC[2J ESC[H
+            // This matches: \x1b[2J\x1b[H (7 bytes total)
+            const clearPattern = /\x1b\[2J\x1b\[H/;
 
-                    case 'exit':
-                        // Update indicator to stopped state
-                        this.runningIndicator.classList.remove('running');
-                        this.runningIndicator.textContent = 'Nie śmigam';
-                        // Disable input
-                        this.disableInput();
-                        this.disconnect();
-                        break;
-
-                    case 'timeout':
-                        this.appendOutput('\n[Za długo się zastanawiasz, zrestartuj.]', 'error');
-                        // Update indicator to stopped state
-                        this.runningIndicator.classList.remove('running');
-                        this.runningIndicator.textContent = 'Nie śmigam';
-                        // Disable input
-                        this.disableInput();
-                        this.disconnect();
-                        break;
-
-                    default:
-                        console.warn('[ScriptTerminal] Unknown message type:', message.type);
+            const match = this.escapeBuffer.match(clearPattern);
+            if (match) {
+                // Get text before the clear sequence
+                const beforeClear = this.escapeBuffer.substring(0, match.index);
+                if (beforeClear) {
+                    this.appendOutput(beforeClear, 'output');
                 }
-            } catch (error) {
-                console.error('[ScriptTerminal] Message parsing error:', error);
+
+                // Clear the terminal output
+                this.clearOutputKeepInput();
+
+                // Keep text after the clear sequence
+                this.escapeBuffer = this.escapeBuffer.substring(match.index + match[0].length);
+            }
+
+            // Check if buffer is getting too long without a clear sequence
+            // This prevents memory issues from accumulating text
+            if (this.escapeBuffer.length > 100 && !clearPattern.test(this.escapeBuffer.slice(-10))) {
+                // No pending escape sequence, flush the buffer
+                this.appendOutput(this.escapeBuffer, 'output');
+                this.escapeBuffer = '';
+            } else if (this.escapeBuffer.length > 0 && !this.escapeBuffer.includes('\x1b')) {
+                // No escape character at all, flush immediately
+                this.appendOutput(this.escapeBuffer, 'output');
+                this.escapeBuffer = '';
             }
         }
 
         /**
-         * Handle WebSocket close event
+         * Clear terminal output but keep input container
          */
-        handleClose() {
-            console.log('[ScriptTerminal] Disconnected');
-            // Update indicator to stopped state on disconnect
+        clearOutputKeepInput() {
+            // Remove all children except input container
+            while (this.output.firstChild && this.output.firstChild !== this.inputContainer) {
+                this.output.removeChild(this.output.firstChild);
+            }
+        }
+
+        /**
+         * Handle error message event
+         */
+        handleErrorMsg(event) {
+            const data = JSON.parse(event.data);
+            this.appendOutput(data.text, 'error');
+        }
+
+        /**
+         * Handle exit event
+         */
+        handleExit() {
+            console.log('[ScriptTerminal] Script exited');
+            // Update indicator to stopped state
             this.runningIndicator.classList.remove('running');
             this.runningIndicator.textContent = 'Nie śmigam';
             // Disable input
+            this.disableInput();
+            this.disconnect();
+        }
+
+        /**
+         * Handle timeout event
+         */
+        handleTimeout() {
+            this.appendOutput('\n[Za długo się zastanawiasz, zrestartuj.]', 'error');
+            // Update indicator to stopped state
+            this.runningIndicator.classList.remove('running');
+            this.runningIndicator.textContent = 'Nie śmigam';
+            // Disable input
+            this.disableInput();
+            this.disconnect();
+        }
+
+        /**
+         * Handle connection error event
+         */
+        handleError(error) {
+            console.error('[ScriptTerminal] SSE error:', error);
+            // Connection closed, update UI
+            this.runningIndicator.classList.remove('running');
+            this.runningIndicator.textContent = 'Nie śmigam';
             this.disableInput();
             this.stopKeepalive();
         }
 
         /**
-         * Handle WebSocket error event
+         * Send user input to script via POST
          */
-        handleError(error) {
-            console.error('[ScriptTerminal] WebSocket error:', error);
-        }
-
-        /**
-         * Send user input to script
-         */
-        sendInput(text) {
-            if (!this.ws || this.ws.readyState !== WebSocket.OPEN) {
-                console.error('[ScriptTerminal] Cannot send input: not connected');
+        async sendInput(text) {
+            if (!this.sessionId) {
+                console.error('[ScriptTerminal] Cannot send input: no session');
                 return;
             }
 
             console.log('[ScriptTerminal] Sending input:', text);
 
-            // Send to server
-            this.ws.send(JSON.stringify({
-                type: 'input',
-                text: text
-            }));
+            try {
+                const response = await fetch('/script/input', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        session_id: this.sessionId,
+                        text: text,
+                        csrf_token: window.csrfToken || ''
+                    })
+                });
 
-            // Keep input enabled - user can send more input anytime
+                if (!response.ok) {
+                    console.error('[ScriptTerminal] Failed to send input:', response.statusText);
+                }
+            } catch (error) {
+                console.error('[ScriptTerminal] Error sending input:', error);
+            }
+        }
+
+        /**
+         * Stop script on server side via POST
+         */
+        async stopScript() {
+            if (!this.sessionId) {
+                return;
+            }
+
+            console.log('[ScriptTerminal] Stopping script');
+
+            try {
+                await fetch('/script/stop', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        session_id: this.sessionId,
+                        csrf_token: window.csrfToken || ''
+                    })
+                });
+            } catch (error) {
+                console.error('[ScriptTerminal] Error stopping script:', error);
+            }
+
+            this.sessionId = null;
         }
 
         /**
@@ -278,10 +363,23 @@
         startKeepalive() {
             this.stopKeepalive(); // Clear any existing interval
 
-            this.keepaliveInterval = setInterval(() => {
-                if (this.ws && this.ws.readyState === WebSocket.OPEN) {
+            this.keepaliveInterval = setInterval(async () => {
+                if (this.sessionId) {
                     console.log('[ScriptTerminal] Sending keepalive');
-                    this.ws.send(JSON.stringify({ type: 'keepalive' }));
+                    try {
+                        await fetch('/script/keepalive', {
+                            method: 'POST',
+                            headers: {
+                                'Content-Type': 'application/json'
+                            },
+                            body: JSON.stringify({
+                                session_id: this.sessionId,
+                                csrf_token: window.csrfToken || ''
+                            })
+                        });
+                    } catch (error) {
+                        console.error('[ScriptTerminal] Keepalive error:', error);
+                    }
                 }
             }, 60000); // 60 seconds
         }
@@ -305,7 +403,7 @@
 
             const span = document.createElement('span');
             span.className = type === 'error' ? 'output-error' : 'output-line';
-            // Use textContent for plain text (ANSI codes stripped on server)
+            // Use textContent for plain text
             span.textContent = text;
 
             // Insert before input container to keep input at the bottom
