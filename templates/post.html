@@ -52,6 +52,7 @@
 </section>
 
 <script src="https://cdn.jsdelivr.net/npm/glightbox/dist/js/glightbox.min.js"></script>
+<script src="{{ url_for('static', filename='media-player.js') }}"></script>
 <script>
 const formMessage = document.getElementById('form-message');
 const formError = document.getElementById('form-error');
@@ -136,8 +137,8 @@ document.addEventListener('DOMContentLoaded', function() {
         <div class="audio-controls">
             <div class="audio-progress-container">
                 <span class="audio-time audio-current">0:00</span>
-                <div class="audio-progress">
-                    <div class="audio-progress-bar"></div>
+                <div class="audio-progress media-progress">
+                    <div class="audio-progress-bar media-progress-bar"></div>
                 </div>
                 <span class="audio-time audio-duration">0:00</span>
             </div>
@@ -146,9 +147,9 @@ document.addEventListener('DOMContentLoaded', function() {
                     <button class="audio-volume-icon-btn" aria-label="Mute">
                         <img src="/static/volume-high.svg" class="audio-volume-icon" alt="Volume">
                     </button>
-                    <div class="audio-volume-track">
-                        <input type="range" class="audio-volume" min="0" max="100" value="100">
-                        <div class="audio-volume-bar"></div>
+                    <div class="audio-volume-track media-volume-track">
+                        <input type="range" class="audio-volume media-volume-slider" min="0" max="100" value="100">
+                        <div class="audio-volume-bar media-volume-bar"></div>
                     </div>
                 </div>
                 <button class="audio-button audio-play-pause" aria-label="Play">
@@ -179,72 +180,30 @@ document.addEventListener('DOMContentLoaded', function() {
 
         let previousVolume = 100;
 
-        // Set download link - get the source URL and add download parameter
-        const audioSrc = audio.querySelector('source')?.src || audio.src;
-        downloadBtn.href = audioSrc + (audioSrc.includes('?') ? '&' : '?') + 'download=1';
-
-        // Extract filename from URL for download attribute
-        const filename = audioSrc.split('/').pop().split('?')[0] || 'audio.mp3';
-        downloadBtn.setAttribute('download', filename);
-
-        // Format time
-        function formatTime(seconds) {
-            const mins = Math.floor(seconds / 60);
-            const secs = Math.floor(seconds % 60);
-            return `${mins}:${secs.toString().padStart(2, '0')}`;
-        }
-
-        // Update progress
-        audio.addEventListener('timeupdate', () => {
-            if (!isDragging) {
-                const percent = (audio.currentTime / audio.duration) * 100;
-                progressBar.style.width = percent + '%';
-                progress.style.setProperty('--progress-percent', percent + '%');
-                currentTime.textContent = formatTime(audio.currentTime);
-            }
-        });
-
-        // Update duration - try multiple events to catch it
-        const updateDuration = () => {
-            if (!isNaN(audio.duration) && isFinite(audio.duration)) {
-                duration.textContent = formatTime(audio.duration);
-            }
-        };
-
-        audio.addEventListener('loadedmetadata', updateDuration);
-        audio.addEventListener('loadeddata', updateDuration);
-        audio.addEventListener('canplay', updateDuration);
-        audio.addEventListener('durationchange', updateDuration);
-
-        // Force load metadata
-        audio.load();
-
-        // Play/Pause
-        playBtn.addEventListener('click', () => {
-            if (audio.paused) {
-                audio.play();
-                playIcon.src = '/static/pause.svg';
-                playIcon.alt = 'Pause';
-                playBtn.setAttribute('aria-label', 'Pause');
-            } else {
-                audio.pause();
-                playIcon.src = '/static/play.svg';
-                playIcon.alt = 'Play';
-                playBtn.setAttribute('aria-label', 'Play');
-            }
-        });
-
-        // Reset on end
-        audio.addEventListener('ended', () => {
-            playIcon.src = '/static/play.svg';
-            playIcon.alt = 'Play';
-            playBtn.setAttribute('aria-label', 'Play');
-            progressBar.style.width = '0%';
-        });
+        // Set download link using shared utility
+        MediaPlayerUtils.setupDownload(audio, downloadBtn);
 
         // Seek by dragging (mouse and touch)
         let isDragging = false;
         let touchUsed = false;
+        const isDraggingGetter = () => isDragging;
+
+        // Setup time update using shared utility
+        MediaPlayerUtils.setupTimeUpdate(audio, progressBar, progress, currentTime, isDraggingGetter);
+
+        // Setup duration display using shared utility
+        MediaPlayerUtils.setupDurationDisplay(audio, duration);
+
+        // Force load metadata
+        audio.load();
+
+        // Setup play/pause using shared utility
+        MediaPlayerUtils.setupPlayPause(audio, playBtn, playIcon);
+
+        // Reset progress on end
+        audio.addEventListener('ended', () => {
+            progressBar.style.width = '0%';
+        });
 
         const seek = (e) => {
             const rect = progress.getBoundingClientRect();
@@ -258,7 +217,7 @@ document.addEventListener('DOMContentLoaded', function() {
             audio.currentTime = newTime;
             progressBar.style.width = (percent * 100) + '%';
             progress.style.setProperty('--progress-percent', (percent * 100) + '%');
-            currentTime.textContent = formatTime(newTime);
+            currentTime.textContent = MediaPlayerUtils.formatTime(newTime);
         };
 
         // Seek by clicking (only for mouse, not touch)
@@ -330,20 +289,8 @@ document.addEventListener('DOMContentLoaded', function() {
                 previousVolume = value;
             }
 
-            // Update volume icon
-            if (value == 0) {
-                volumeIcon.src = '/static/volume-close.svg';
-                volumeIconBtn.setAttribute('aria-label', 'Unmute');
-            } else if (value < 33) {
-                volumeIcon.src = '/static/volume-low.svg';
-                volumeIconBtn.setAttribute('aria-label', 'Mute');
-            } else if (value < 66) {
-                volumeIcon.src = '/static/volume-medium.svg';
-                volumeIconBtn.setAttribute('aria-label', 'Mute');
-            } else {
-                volumeIcon.src = '/static/volume-high.svg';
-                volumeIconBtn.setAttribute('aria-label', 'Mute');
-            }
+            // Update volume icon using shared utility
+            MediaPlayerUtils.updateVolumeIcon(value, volumeIcon, volumeIconBtn);
         };
 
         volumeSlider.addEventListener('input', (e) => {
@@ -436,8 +383,8 @@ document.addEventListener('DOMContentLoaded', function() {
             <div class="video-controls">
                 <div class="video-progress-container">
                     <span class="video-time video-current">0:00</span>
-                    <div class="video-progress">
-                        <div class="video-progress-bar"></div>
+                    <div class="video-progress media-progress">
+                        <div class="video-progress-bar media-progress-bar"></div>
                     </div>
                     <span class="video-time video-duration">0:00</span>
                 </div>
@@ -446,9 +393,9 @@ document.addEventListener('DOMContentLoaded', function() {
                         <button class="video-volume-icon-btn" aria-label="Mute">
                             <img src="/static/volume-high.svg" class="video-volume-icon" alt="Volume">
                         </button>
-                        <div class="video-volume-track">
-                            <input type="range" class="video-volume" min="0" max="100" value="100">
-                            <div class="video-volume-bar"></div>
+                        <div class="video-volume-track media-volume-track">
+                            <input type="range" class="video-volume media-volume-slider" min="0" max="100" value="100">
+                            <div class="video-volume-bar media-volume-bar"></div>
                         </div>
                     </div>
                     <button class="video-button video-play-pause" aria-label="Play">
@@ -541,42 +488,19 @@ document.addEventListener('DOMContentLoaded', function() {
 
         let previousVolume = 100;
 
-        // Set download link
-        const videoSrc = video.querySelector('source')?.src || video.src;
-        downloadBtn.href = videoSrc + (videoSrc.includes('?') ? '&' : '?') + 'download=1';
+        // Seek by dragging (mouse and touch)
+        let isDragging = false;
+        let touchUsed = false;
+        const isDraggingGetter = () => isDragging;
 
-        // Extract filename from URL for download attribute
-        const filename = videoSrc.split('/').pop().split('?')[0] || 'video.mp4';
-        downloadBtn.setAttribute('download', filename);
+        // Set download link using shared utility
+        MediaPlayerUtils.setupDownload(video, downloadBtn);
 
-        // Format time
-        function formatTime(seconds) {
-            const mins = Math.floor(seconds / 60);
-            const secs = Math.floor(seconds % 60);
-            return `${mins}:${secs.toString().padStart(2, '0')}`;
-        }
+        // Setup time update using shared utility
+        MediaPlayerUtils.setupTimeUpdate(video, progressBar, progress, currentTime, isDraggingGetter);
 
-        // Update progress
-        video.addEventListener('timeupdate', () => {
-            if (!isDragging) {
-                const percent = (video.currentTime / video.duration) * 100;
-                progressBar.style.width = percent + '%';
-                progress.style.setProperty('--progress-percent', percent + '%');
-                currentTime.textContent = formatTime(video.currentTime);
-            }
-        });
-
-        // Update duration - try multiple events to catch it
-        const updateDuration = () => {
-            if (!isNaN(video.duration) && isFinite(video.duration)) {
-                duration.textContent = formatTime(video.duration);
-            }
-        };
-
-        video.addEventListener('loadedmetadata', updateDuration);
-        video.addEventListener('loadeddata', updateDuration);
-        video.addEventListener('canplay', updateDuration);
-        video.addEventListener('durationchange', updateDuration);
+        // Setup duration display using shared utility
+        MediaPlayerUtils.setupDurationDisplay(video, duration);
 
         // Force load metadata
         video.load();
@@ -627,10 +551,6 @@ document.addEventListener('DOMContentLoaded', function() {
             progressBar.style.width = '0%';
         });
 
-        // Seek by dragging (mouse and touch)
-        let isDragging = false;
-        let touchUsed = false;
-
         const seek = (e) => {
             const rect = progress.getBoundingClientRect();
             const clientX = e.type.includes('touch') ?
@@ -643,7 +563,7 @@ document.addEventListener('DOMContentLoaded', function() {
             video.currentTime = newTime;
             progressBar.style.width = (percent * 100) + '%';
             progress.style.setProperty('--progress-percent', (percent * 100) + '%');
-            currentTime.textContent = formatTime(newTime);
+            currentTime.textContent = MediaPlayerUtils.formatTime(newTime);
         };
 
         // Seek by clicking (only for mouse, not touch)
@@ -715,20 +635,8 @@ document.addEventListener('DOMContentLoaded', function() {
                 previousVolume = value;
             }
 
-            // Update volume icon
-            if (value == 0) {
-                volumeIcon.src = '/static/volume-close.svg';
-                volumeIconBtn.setAttribute('aria-label', 'Unmute');
-            } else if (value < 33) {
-                volumeIcon.src = '/static/volume-low.svg';
-                volumeIconBtn.setAttribute('aria-label', 'Mute');
-            } else if (value < 66) {
-                volumeIcon.src = '/static/volume-medium.svg';
-                volumeIconBtn.setAttribute('aria-label', 'Mute');
-            } else {
-                volumeIcon.src = '/static/volume-high.svg';
-                volumeIconBtn.setAttribute('aria-label', 'Mute');
-            }
+            // Update volume icon using shared utility
+            MediaPlayerUtils.updateVolumeIcon(value, volumeIcon, volumeIconBtn);
         };
 
         volumeSlider.addEventListener('input', (e) => {

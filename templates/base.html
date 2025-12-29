@@ -13,13 +13,7 @@
 <body>
     <header class="header-top">
         <div class="header-container">
-            <pre class="ascii-header"><a href="{{ url_for('main.index') }}">
-__        ___     _           _                              _
-\ \      / (_)___| |__       | | ___  _   _ _ __ _ __   __ _| |
- \ \ /\ / /| / __| '_ \   _  | |/ _ \| | | | '__| '_ \ / _` | |
-  \ V  V / | \__ \ | | | | |_| | (_) | |_| | |  | | | | (_| | |
-   \_/\_/  |_|___/_| |_|  \___/ \___/ \__,_|_|  |_| |_|\__,_|_|
-</a></pre>
+            <pre class="ascii-header"><a href="{{ url_for('main.index') }}">{% include '_ascii_header.html' %}</a></pre>
         </div>
     </header>
 

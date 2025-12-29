@@ -1,7 +1,7 @@
 import functools
 from typing import Callable
 
-from flask import Blueprint, flash, g, redirect, render_template, request, session, url_for
+from flask import Blueprint, g, redirect, render_template, request, session, url_for
 
 from . import models
 

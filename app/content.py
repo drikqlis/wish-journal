@@ -1,5 +1,4 @@
 import logging
-import os
 import re
 import threading
 import xml.etree.ElementTree as etree
@@ -16,6 +15,9 @@ from watchdog.events import FileSystemEventHandler
 from watchdog.observers.polling import PollingObserver
 
 logger = logging.getLogger(__name__)
+
+# Default footer message constant
+DEFAULT_FOOTER_MESSAGE = "Nie napalaj się na zbyt wiele"
 
 _posts_cache: list["Post"] = []
 _cache_lock = threading.Lock()
@@ -249,7 +251,7 @@ def load_footer_messages() -> None:
     content_path = current_app.config.get("CONTENT_PATH", "/content")
     messages_file = Path(content_path) / "other" / "footer-messages.yaml"
 
-    default_messages = ["Nie napalaj się na zbyt wiele"]
+    default_messages = [DEFAULT_FOOTER_MESSAGE]
 
     if not messages_file.exists():
         logger.warning(f"Footer messages file does not exist: {messages_file}")
@@ -273,66 +275,77 @@ def load_footer_messages() -> None:
 
 def get_footer_messages() -> list[str]:
     """Get the list of footer messages."""
-    return list(_footer_messages) if _footer_messages else ["Nie napalaj się na zbyt wiele"]
+    return list(_footer_messages) if _footer_messages else [DEFAULT_FOOTER_MESSAGE]
 
 
-class PostsEventHandler(FileSystemEventHandler):
-    def __init__(self, app: Flask):
+class DebouncedFileEventHandler(FileSystemEventHandler):
+    """Base class for file event handlers with debounced reload functionality."""
+
+    def __init__(self, app: Flask, file_pattern: str, reload_callback: callable, debounce_delay: float = 1.0):
+        """
+        Initialize the debounced event handler.
+
+        Args:
+            app: Flask application instance
+            file_pattern: File pattern to watch (e.g., ".md", "footer-messages.yaml")
+            reload_callback: Function to call when files change
+            debounce_delay: Delay in seconds before triggering reload (default: 1.0)
+        """
         self.app = app
+        self.file_pattern = file_pattern
+        self.reload_callback = reload_callback
+        self.debounce_delay = debounce_delay
         self._debounce_timer: threading.Timer | None = None
 
-    def _reload_posts(self) -> None:
+    def _reload(self) -> None:
+        """Execute the reload callback within app context."""
         with self.app.app_context():
+            self.reload_callback()
+
+    def _schedule_reload(self) -> None:
+        """Schedule a reload with debouncing."""
+        if self._debounce_timer:
+            self._debounce_timer.cancel()
+        self._debounce_timer = threading.Timer(self.debounce_delay, self._reload)
+        self._debounce_timer.start()
+
+    def _should_handle_event(self, event_path: str) -> bool:
+        """Check if the event should trigger a reload."""
+        return event_path.endswith(self.file_pattern)
+
+    def on_created(self, event) -> None:
+        if self._should_handle_event(event.src_path):
+            self._schedule_reload()
+
+    def on_modified(self, event) -> None:
+        if self._should_handle_event(event.src_path):
+            self._schedule_reload()
+
+    def on_deleted(self, event) -> None:
+        if self._should_handle_event(event.src_path):
+            self._schedule_reload()
+
+
+class PostsEventHandler(DebouncedFileEventHandler):
+    """Handler for markdown post files."""
+
+    def __init__(self, app: Flask):
+        def reload_posts_with_logging():
             load_posts()
             logger.info("Posts reloaded due to filesystem change")
 
-    def _schedule_reload(self) -> None:
-        if self._debounce_timer:
-            self._debounce_timer.cancel()
-        self._debounce_timer = threading.Timer(1.0, self._reload_posts)
-        self._debounce_timer.start()
-
-    def on_created(self, event) -> None:
-        if event.src_path.endswith(".md"):
-            self._schedule_reload()
-
-    def on_modified(self, event) -> None:
-        if event.src_path.endswith(".md"):
-            self._schedule_reload()
-
-    def on_deleted(self, event) -> None:
-        if event.src_path.endswith(".md"):
-            self._schedule_reload()
+        super().__init__(app, ".md", reload_posts_with_logging)
 
 
-class ContentEventHandler(FileSystemEventHandler):
+class ContentEventHandler(DebouncedFileEventHandler):
     """Handler for footer-messages.yaml and other content root files."""
-    def __init__(self, app: Flask):
-        self.app = app
-        self._debounce_timer: threading.Timer | None = None
 
-    def _reload_footer_messages(self) -> None:
-        with self.app.app_context():
+    def __init__(self, app: Flask):
+        def reload_footer_with_logging():
             load_footer_messages()
             logger.info("Footer messages reloaded due to filesystem change")
 
-    def _schedule_reload(self) -> None:
-        if self._debounce_timer:
-            self._debounce_timer.cancel()
-        self._debounce_timer = threading.Timer(1.0, self._reload_footer_messages)
-        self._debounce_timer.start()
-
-    def on_created(self, event) -> None:
-        if event.src_path.endswith("footer-messages.yaml"):
-            self._schedule_reload()
-
-    def on_modified(self, event) -> None:
-        if event.src_path.endswith("footer-messages.yaml"):
-            self._schedule_reload()
-
-    def on_deleted(self, event) -> None:
-        if event.src_path.endswith("footer-messages.yaml"):
-            self._schedule_reload()
+        super().__init__(app, "footer-messages.yaml", reload_footer_with_logging)
 
 
 def start_watcher(app: Flask) -> None:
