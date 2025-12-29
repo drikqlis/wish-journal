@@ -78,7 +78,9 @@ def test_session_lifecycle(app, simple_script):
         exit_messages = [msg for msg in output if msg['type'] == 'exit']
 
         assert len(output_messages) >= 1
-        assert 'Hello, World!' in output_messages[0]['text']
+        # Concatenate all output text (script_runner sends char-by-char)
+        full_output = ''.join(msg['text'] for msg in output_messages)
+        assert 'Hello, World!' in full_output
         assert len(exit_messages) == 1
         assert exit_messages[0]['code'] == 0
 
@@ -155,14 +157,21 @@ def test_script_error_handling(app, error_script):
         session_id = script_runner.create_session(error_script)
         script_runner.start_execution(session_id)
 
-        # Wait for script to fail
-        time.sleep(0.5)
+        # Wait for script to complete execution
+        for i in range(30):  # Wait up to 3 seconds
+            time.sleep(0.1)
+            if not script_runner.is_running(session_id):
+                break
 
+        # Give thread a bit more time to write the exit message
+        time.sleep(0.2)
+
+        # Get all output
         output = script_runner.get_output(session_id)
 
-        # Should have output and exit with non-zero code
+        # Should have exit with non-zero code
         exit_messages = [msg for msg in output if msg['type'] == 'exit']
-        assert len(exit_messages) == 1
+        assert len(exit_messages) == 1, f"Expected 1 exit message, got {len(exit_messages)}. All output: {output}"
         assert exit_messages[0]['code'] != 0
 
         # Cleanup
