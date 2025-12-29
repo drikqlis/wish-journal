@@ -51,11 +51,16 @@
     </div>
 </section>
 
+<script>
+// CSRF token for WebSocket authentication
+window.csrfToken = "{{ csrf_token }}";
+</script>
 <script src="https://cdn.jsdelivr.net/npm/glightbox/dist/js/glightbox.min.js"></script>
 <script src="{{ url_for('static', filename='js/media-player.js') }}"></script>
 <script src="{{ url_for('static', filename='js/lightbox-init.js') }}"></script>
 <script src="{{ url_for('static', filename='js/audio-player.js') }}"></script>
 <script src="{{ url_for('static', filename='js/video-player.js') }}"></script>
+<script src="{{ url_for('static', filename='js/python-script.js') }}"></script>
 <script src="{{ url_for('static', filename='js/comment-form.js') }}"></script>
 {% if show_success %}
 <script>

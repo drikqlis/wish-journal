@@ -30,6 +30,13 @@ def create_app(config: dict | None = None) -> Flask:
     from . import routes
     app.register_blueprint(routes.bp)
 
+    # Initialize WebSocket support
+    from flask_sock import Sock
+    sock = Sock(app)
+
+    # Register WebSocket routes
+    sock.route('/script/ws')(routes.script_websocket)
+
     from . import content
     with app.app_context():
         content.load_posts()
