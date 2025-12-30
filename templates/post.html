@@ -39,7 +39,7 @@
         <h3>Co o tym myślisz, {{ g.user['first_name'] }}?</h3>
         <form method="POST" action="{{ url_for('main.add_comment', slug=post.slug) }}#comment-form">
             <input type="hidden" name="csrf_token" value="{{ csrf_token }}">
-            <textarea name="content" rows="4" placeholder="..."></textarea>
+            <textarea name="content" rows="4" placeholder="Naskrob coś..."></textarea>
             <div class="form-footer">
                 <div class="form-messages">
                     <span class="form-message" id="form-message">Zapisano</span>

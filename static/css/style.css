@@ -1246,6 +1246,7 @@ main {
 
 .comment-form textarea::placeholder {
     color: var(--text-dim);
+    opacity: 0.5;
 }
 
 .comment-form textarea:invalid:not(:focus):not(:placeholder-shown) {
