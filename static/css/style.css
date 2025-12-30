@@ -42,7 +42,7 @@ html {
 /* Custom Scrollbar Styling */
 * {
     scrollbar-width: thin;
-    scrollbar-color: var(--accent-dim) var(--bg-color);
+    scrollbar-color: rgba(179, 136, 238, 0.6) var(--bg-color);
 }
 
 /* WebKit browsers (Chrome, Safari, Edge) */
@@ -57,17 +57,17 @@ html {
 }
 
 *::-webkit-scrollbar-thumb {
-    background: var(--accent-dim);
+    background: rgba(179, 136, 238, 0.6);
     border: 2px solid var(--bg-color);
     border-radius: 6px;
 }
 
 *::-webkit-scrollbar-thumb:hover {
-    background: var(--accent-color);
+    background: rgba(179, 136, 238, 0.7);
 }
 
 *::-webkit-scrollbar-thumb:active {
-    background: var(--accent-color);
+    background: rgba(179, 136, 238, 0.8);
 }
 
 *::-webkit-scrollbar-corner {
