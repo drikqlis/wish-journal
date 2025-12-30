@@ -1,4 +1,4 @@
-@import url('https://fonts.googleapis.com/css2?family=Exo+2:wght@400;700&family=Fira+Code:wght@400;700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;700&family=IBM+Plex+Mono:wght@400;700&display=swap');
 
 :root {
     --bg-color: #0a0a0a;
@@ -75,7 +75,7 @@ html {
 }
 
 body {
-    font-family: 'Exo 2', sans-serif;
+    font-family: 'IBM Plex Sans', sans-serif;
     background-color: var(--bg-color);
     color: var(--text-color);
     line-height: 1.7;
@@ -173,7 +173,7 @@ main {
     border: none;
     outline: none;
     color: var(--text-color);
-    font-family: 'Fira Code', monospace;
+    font-family: 'IBM Plex Mono', monospace;
     font-size: 1.2rem;
     padding: 0;
     text-align: center;
@@ -196,7 +196,7 @@ main {
     color: var(--text-color);
     opacity: 0.3;
     pointer-events: none;
-    font-family: 'Fira Code', monospace;
+    font-family: 'IBM Plex Mono', monospace;
     font-size: 1.2rem;
     letter-spacing: 0.2em;
 }
@@ -216,7 +216,7 @@ main {
     opacity: 0;
     transition: opacity 0.3s ease, transform 0.3s ease;
     transform: translateY(-10px);
-    font-family: 'Fira Code', monospace;
+    font-family: 'IBM Plex Mono', monospace;
     font-weight: 400;
 }
 
@@ -272,10 +272,10 @@ main {
 }
 
 .post-meta {
-    font-size: 0.95rem;
+    font-size: 0.9rem;
     color: var(--text-dim);
     margin-bottom: 1.5rem;
-    letter-spacing: 0.1em;
+    letter-spacing: 0.08em;
 }
 
 .post-meta .separator {
@@ -330,6 +330,10 @@ main {
     color: var(--accent-color);
     margin-bottom: 1rem;
     font-size: 2rem;
+}
+
+.post-excerpt h1 {
+    color: var(--text-dim);
 }
 
 .post-header .post-meta {
@@ -403,7 +407,7 @@ main {
 }
 
 .post-content code {
-    font-family: 'Fira Code', monospace;
+    font-family: 'IBM Plex Mono', monospace;
     background-color: var(--bg-elevated);
     padding: 0.15rem 0.4rem;
     font-size: 0.95em;
@@ -418,7 +422,7 @@ main {
 }
 
 .post-content pre code {
-    font-family: 'Fira Code', monospace;
+    font-family: 'IBM Plex Mono', monospace;
     padding: 0;
     background: none;
     color: var(--text-color);
@@ -646,13 +650,13 @@ main {
     font-size: 1.05rem;
     margin-bottom: 0.25rem;
     font-weight: 700;
-    font-family: 'Fira Code', monospace;
+    font-family: 'IBM Plex Mono', monospace;
 }
 
 .audio-artist {
     color: var(--text-dim);
     font-size: 0.9rem;
-    font-family: 'Fira Code', monospace;
+    font-family: 'IBM Plex Mono', monospace;
 }
 
 .audio-controls {
@@ -675,7 +679,7 @@ main {
     display: flex;
     align-items: center;
     flex-shrink: 0;
-    font-family: 'Fira Code', monospace;
+    font-family: 'IBM Plex Mono', monospace;
 }
 
 .audio-buttons {
@@ -874,7 +878,7 @@ main {
     color: var(--accent-color);
     font-size: 0.9rem;
     font-weight: 700;
-    font-family: 'Fira Code', monospace;
+    font-family: 'IBM Plex Mono', monospace;
     border-bottom: 1px solid var(--border-color);
 }
 
@@ -914,7 +918,7 @@ main {
     display: flex;
     align-items: center;
     flex-shrink: 0;
-    font-family: 'Fira Code', monospace;
+    font-family: 'IBM Plex Mono', monospace;
 }
 
 .video-buttons {
@@ -1269,7 +1273,7 @@ main {
     opacity: 0;
     transition: opacity 0.3s ease, transform 0.3s ease;
     transform: translateY(-10px);
-    font-family: 'Fira Code', monospace;
+    font-family: 'IBM Plex Mono', monospace;
     font-weight: 400;
     position: absolute;
     left: 0;
@@ -1293,6 +1297,7 @@ main {
 .error-page {
     text-align: center;
     padding: 4rem 1rem;
+    font-family: 'IBM Plex Mono', monospace;
 }
 
 .error-page h1 {
@@ -1312,7 +1317,7 @@ footer {
     text-align: center;
     color: var(--text-dim);
     font-size: 0.75rem;
-    font-family: 'Fira Code', monospace;
+    font-family: 'IBM Plex Mono', monospace;
 }
 
 footer a {
@@ -1364,7 +1369,7 @@ footer a:hover {
     color: var(--accent-color);
     font-size: 0.9rem;
     font-weight: 700;
-    font-family: 'Fira Code', monospace;
+    font-family: 'IBM Plex Mono', monospace;
 }
 
 .gallery-wrapper:not(:has(.gallery-item:only-child)) .gallery-title {
