@@ -230,32 +230,90 @@
             html += `<div class="terminal-line">======================</div>`;
             html += `<div class="terminal-line"></div>`;
 
-            // Code display
-            let codeDisplay = '';
+            // Code display with touch controls
+            html += `<div class="code-input-container">`;
+
+            // Create interactive digit controls
             for (let i = 0; i < this.code.length; i++) {
-                if (i === this.position && this.blinkState) {
-                    codeDisplay += `<span class="code-digit active">[${this.code[i]}]</span> `;
-                } else {
-                    codeDisplay += `<span class="code-digit"> ${this.code[i]} </span> `;
-                }
+                const isActive = i === this.position;
+                const digitClass = isActive ? 'code-digit-wrapper active' : 'code-digit-wrapper';
+
+                html += `<div class="${digitClass}" data-position="${i}">`;
+                html += `<button class="digit-up button-bordered" data-position="${i}" aria-label="Zwiększ cyfre ${i + 1}">▲</button>`;
+                html += `<span class="code-digit-display">${this.code[i]}</span>`;
+                html += `<button class="digit-down button-bordered" data-position="${i}" aria-label="Zmniejsz cyfre ${i + 1}">▼</button>`;
+                html += `</div>`;
             }
-            html += `<div class="terminal-line code-line">${codeDisplay}</div>`;
+
+            html += `</div>`;
+
+            // Mobile-friendly action buttons
+            html += `<div class="terminal-line" style="margin-top: 1.5rem;"></div>`;
+            html += `<div class="code-actions">`;
+            html += `<button class="action-button button-bordered prev-digit" ${this.position === 0 ? 'disabled' : ''}>Cofnij</button>`;
+            html += `<button class="action-button button-bordered next-digit">${this.position < 3 ? 'Dalej' : 'Zatwierdź'}</button>`;
+            html += `</div>`;
 
             this.terminal.innerHTML = html;
+            this.attachTouchControls();
         }
 
         startBlink() {
-            this.stopBlink();
-            this.blinkInterval = setInterval(() => {
-                this.blinkState = !this.blinkState;
-                this.render();
-            }, 250);
+            // Blinking disabled - just render once with active state
+            this.blinkState = true;
         }
 
         stopBlink() {
-            if (this.blinkInterval) {
-                clearInterval(this.blinkInterval);
-                this.blinkInterval = null;
+            // No-op since we removed blinking
+        }
+
+        attachTouchControls() {
+            // Attach event listeners to touch controls
+            const digitUpButtons = this.terminal.querySelectorAll('.digit-up');
+            const digitDownButtons = this.terminal.querySelectorAll('.digit-down');
+            const prevButton = this.terminal.querySelector('.prev-digit');
+            const nextButton = this.terminal.querySelector('.next-digit');
+
+            digitUpButtons.forEach(button => {
+                button.addEventListener('click', (e) => {
+                    e.preventDefault();
+                    const pos = parseInt(button.dataset.position);
+                    this.position = pos;
+                    this.code[pos] = (this.code[pos] + 1) % 10;
+                    this.render();
+                });
+            });
+
+            digitDownButtons.forEach(button => {
+                button.addEventListener('click', (e) => {
+                    e.preventDefault();
+                    const pos = parseInt(button.dataset.position);
+                    this.position = pos;
+                    this.code[pos] = (this.code[pos] - 1 + 10) % 10;
+                    this.render();
+                });
+            });
+
+            if (prevButton) {
+                prevButton.addEventListener('click', (e) => {
+                    e.preventDefault();
+                    if (this.position > 0) {
+                        this.position--;
+                        this.render();
+                    }
+                });
+            }
+
+            if (nextButton) {
+                nextButton.addEventListener('click', (e) => {
+                    e.preventDefault();
+                    if (this.position < 3) {
+                        this.position++;
+                        this.render();
+                    } else {
+                        this.submitCode();
+                    }
+                });
             }
         }
 
