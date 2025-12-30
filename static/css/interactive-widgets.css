@@ -183,3 +183,37 @@
     0%, 100% { opacity: 1; }
     50% { opacity: 0.3; }
 }
+
+/* Terminal Input (inline inputs for interactive widgets) */
+.terminal-input {
+    background: transparent;
+    border: none;
+    color: var(--text-color);
+    font-family: 'Fira Code', monospace;
+    font-size: 0.9rem;
+    outline: none;
+    min-width: 200px;
+    max-width: 100%;
+    caret-color: var(--accent-color);
+    padding: 0;
+    margin: 0;
+    text-align: left;
+    display: inline-block;
+    vertical-align: baseline;
+    letter-spacing: normal;
+    /* Prevent password-style rendering */
+    -webkit-text-security: none;
+    -moz-text-security: none;
+    text-security: none;
+}
+
+/* Ensure terminal lines with inputs are left-aligned */
+.terminal-line {
+    text-align: left;
+}
+
+/* Error text styling */
+.terminal-line.error {
+    color: #ff4444;
+    font-weight: 700;
+}
