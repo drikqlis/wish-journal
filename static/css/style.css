@@ -393,49 +393,13 @@ main {
 }
 
 .post-content .video-download {
-    flex-shrink: 0;
     position: absolute;
     right: 40px;
-    color: var(--text-dim);
-    transition: color 0.2s;
-}
-
-.post-content .video-download:hover {
-    color: var(--accent-color);
-}
-
-.post-content .video-download:active {
-    color: var(--accent-color);
-}
-
-/* Prevent stuck focus state on mobile after tap, but keep active state */
-@media (hover: none) and (pointer: coarse) {
-    .post-content .video-download:focus:not(:active) {
-        color: var(--text-dim);
-    }
 }
 
 .post-content .audio-download {
-    flex-shrink: 0;
     position: absolute;
     right: 0;
-    color: var(--text-dim);
-    transition: color 0.2s;
-}
-
-.post-content .audio-download:hover {
-    color: var(--accent-color);
-}
-
-.post-content .audio-download:active {
-    color: var(--accent-color);
-}
-
-/* Prevent stuck focus state on mobile after tap, but keep active state */
-@media (hover: none) and (pointer: coarse) {
-    .post-content .audio-download:focus:not(:active) {
-        color: var(--text-dim);
-    }
 }
 
 .post-content code {
@@ -722,85 +686,15 @@ main {
     position: relative;
 }
 
-.audio-button {
-    background: transparent;
-    border: none;
-    cursor: pointer;
-    transition: color 0.2s;
-    flex-shrink: 0;
-    padding: 0;
-    margin: 0;
-    line-height: 1;
-    width: 24px;
-    height: 24px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    text-decoration: none;
-    color: var(--text-dim);
-}
-
 .audio-button span {
-    width: 24px;
-    height: 24px;
     display: flex;
     align-items: center;
     justify-content: center;
-}
-
-.audio-button .audio-play-icon {
-    width: 32px;
-    height: 32px;
-}
-
-.audio-button span svg {
-    width: 100%;
-    height: 100%;
-}
-
-.audio-button:hover {
-    color: var(--accent-color);
-}
-
-.audio-button:active {
-    color: var(--accent-color);
-}
-
-/* Prevent stuck focus state on mobile after tap, but keep active state */
-@media (hover: none) and (pointer: coarse) {
-    .audio-button:focus:not(:active) {
-        color: var(--text-dim);
-    }
 }
 
 .audio-play-pause {
-    width: 32px;
-    height: 32px;
-    border: none;
-    border-radius: 0;
-    background-color: transparent;
-}
-
-.audio-play-pause svg {
-    width: 32px;
-    height: 32px;
-    color: var(--text-dim);
-    transition: color 0.2s;
-}
-
-.audio-play-pause:hover svg {
-    color: var(--accent-color);
-}
-
-.audio-play-pause:active svg {
-    color: var(--accent-color);
-}
-
-/* Prevent stuck focus state on mobile after tap, but keep active state */
-@media (hover: none) and (pointer: coarse) {
-    .audio-play-pause:focus:not(:active) svg {
-        color: var(--text-dim);
-    }
+    width: 32px !important;
+    height: 32px !important;
 }
 
 .audio-volume-container {
@@ -811,49 +705,6 @@ main {
     flex: 1;
     position: absolute;
     left: 0;
-}
-
-.audio-volume-icon-btn {
-    background: transparent;
-    border: none;
-    cursor: pointer;
-    padding: 0;
-    margin: 0;
-    line-height: 1;
-    width: 24px;
-    height: 24px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    flex-shrink: 0;
-    transition: color 0.2s;
-    outline: none;
-    color: var(--text-dim);
-}
-
-.audio-volume-icon-btn:hover {
-    color: var(--accent-color);
-}
-
-.audio-volume-icon-btn:focus {
-    outline: none;
-}
-
-.audio-volume-icon-btn:active {
-    color: var(--accent-color);
-}
-
-/* Prevent stuck focus state on mobile after tap, but keep active state */
-@media (hover: none) and (pointer: coarse) {
-    .audio-volume-icon-btn:focus:not(:active) {
-        color: var(--text-dim);
-    }
-}
-
-.audio-volume-icon {
-    width: 24px;
-    height: 24px;
-    flex-shrink: 0;
 }
 
 .audio-volume-track {
@@ -1074,63 +925,15 @@ main {
     position: relative;
 }
 
-.video-button {
-    background: transparent;
-    border: none;
-    cursor: pointer;
-    transition: color 0.2s;
-    flex-shrink: 0;
-    padding: 0;
-    margin: 0;
-    line-height: 1;
-    width: 24px;
-    height: 24px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    text-decoration: none;
-    color: var(--text-dim);
-}
-
 .video-button span {
-    width: 24px;
-    height: 24px;
     display: flex;
     align-items: center;
     justify-content: center;
-}
-
-.video-button .video-play-icon {
-    width: 32px;
-    height: 32px;
-}
-
-.video-button span svg {
-    width: 100%;
-    height: 100%;
-}
-
-.video-button:hover {
-    color: var(--accent-color);
-}
-
-.video-button:active {
-    color: var(--accent-color);
-}
-
-/* Prevent stuck focus state on mobile after tap, but keep active state */
-@media (hover: none) and (pointer: coarse) {
-    .video-button:focus:not(:active) {
-        color: var(--text-dim);
-    }
 }
 
 .video-play-pause {
-    width: 32px;
-    height: 32px;
-    border: none;
-    border-radius: 0;
-    background-color: transparent;
+    width: 32px !important;
+    height: 32px !important;
 }
 
 .video-play-pause span {
@@ -1138,52 +941,12 @@ main {
 }
 
 .video-play-pause svg {
-    width: 32px;
-    height: 32px;
-    color: var(--text-dim);
-    transition: color 0.2s;
     pointer-events: none;
 }
 
-.video-play-pause:hover svg {
-    color: var(--accent-color);
-}
-
-.video-play-pause:active svg {
-    color: var(--accent-color);
-}
-
-/* Prevent stuck focus state on mobile after tap, but keep active state */
-@media (hover: none) and (pointer: coarse) {
-    .video-play-pause:focus:not(:active) svg {
-        color: var(--text-dim);
-    }
-}
-
 .video-fullscreen {
-    flex-shrink: 0;
     position: absolute;
     right: 0;
-}
-
-.video-fullscreen svg {
-    color: var(--text-dim);
-    transition: color 0.2s;
-}
-
-.video-fullscreen:hover svg {
-    color: var(--accent-color);
-}
-
-.video-fullscreen:active svg {
-    color: var(--accent-color);
-}
-
-/* Prevent stuck focus state on mobile after tap, but keep active state */
-@media (hover: none) and (pointer: coarse) {
-    .video-fullscreen:focus:not(:active) svg {
-        color: var(--text-dim);
-    }
 }
 
 .video-volume-container {
@@ -1194,43 +957,6 @@ main {
     flex: 1;
     position: absolute;
     left: 0;
-}
-
-.video-volume-icon-btn {
-    background: transparent;
-    border: none;
-    cursor: pointer;
-    padding: 0;
-    margin: 0;
-    line-height: 1;
-    width: 24px;
-    height: 24px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    flex-shrink: 0;
-    transition: color 0.2s;
-    outline: none;
-    color: var(--text-dim);
-}
-
-.video-volume-icon-btn:hover {
-    color: var(--accent-color);
-}
-
-.video-volume-icon-btn:focus {
-    outline: none;
-}
-
-.video-volume-icon-btn:active {
-    color: var(--accent-color);
-}
-
-/* Prevent stuck focus state on mobile after tap, but keep active state */
-@media (hover: none) and (pointer: coarse) {
-    .video-volume-icon-btn:focus:not(:active) {
-        color: var(--text-dim);
-    }
 }
 
 .video-volume-icon {
@@ -1374,6 +1100,78 @@ main {
     margin-bottom: 0.5rem;
 }
 
+/* Base button styles - consolidated common properties */
+.button,
+.post-content .button {
+    background: transparent;
+    border: none;
+    cursor: pointer;
+    transition: color 0.2s;
+    flex-shrink: 0;
+    padding: 0;
+    margin: 0;
+    line-height: 1;
+    width: 24px;
+    height: 24px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--text-dim);
+}
+
+.button:hover,
+.post-content .button:hover {
+    color: var(--accent-color);
+}
+
+.button:active,
+.post-content .button:active {
+    color: var(--accent-color);
+}
+
+/* Prevent stuck focus state on mobile after tap, but keep active state */
+@media (hover: none) and (pointer: coarse) {
+    .button:focus:not(:active),
+    .post-content .button:focus:not(:active) {
+        color: var(--text-dim);
+    }
+}
+
+/* SVG color inheritance from button */
+.button svg,
+.post-content .button svg {
+    color: inherit;
+    transition: color 0.2s;
+}
+
+/* Specific button type: bordered button with fill on hover */
+.button-bordered {
+    padding: 0.5rem 1.5rem;
+    font-family: inherit;
+    font-size: 0.875rem;
+    background-color: transparent;
+    color: var(--accent-color);
+    border: 1px solid var(--accent-color);
+    transition: all 0.2s;
+}
+
+.button-bordered:hover {
+    background-color: var(--accent-color);
+    color: var(--bg-color);
+}
+
+.button-bordered:active {
+    background-color: var(--accent-color);
+    color: var(--bg-color);
+}
+
+@media (hover: none) and (pointer: coarse) {
+    .button-bordered:focus:not(:active) {
+        background-color: transparent;
+        color: var(--accent-color);
+    }
+}
+
 /* Comments */
 .comments {
     margin-top: 3rem;
@@ -1489,35 +1287,6 @@ main {
 .comment-form .form-error.visible {
     opacity: 1;
     transform: translateY(0);
-}
-
-.comment-form button {
-    padding: 0.5rem 1.5rem;
-    font-family: inherit;
-    font-size: 0.875rem;
-    background-color: transparent;
-    color: var(--accent-color);
-    border: 1px solid var(--accent-color);
-    cursor: pointer;
-    transition: all 0.2s;
-}
-
-.comment-form button:hover {
-    background-color: var(--accent-color);
-    color: var(--bg-color);
-}
-
-.comment-form button:active {
-    background-color: var(--accent-color);
-    color: var(--bg-color);
-}
-
-/* Prevent stuck focus state on mobile after tap, but keep active state */
-@media (hover: none) and (pointer: coarse) {
-    .comment-form button:focus:not(:active) {
-        background-color: transparent;
-        color: var(--accent-color);
-    }
 }
 
 /* Error page */
@@ -1889,26 +1658,6 @@ footer a:hover {
     padding: 0.75rem 1.5rem;
     border-top: 1px solid var(--border-color);
     background: var(--bg-elevated);
-}
-
-.script-start,
-.script-restart {
-    width: 24px;
-    height: 24px;
-    padding: 0;
-    border: none;
-    background: transparent;
-    cursor: pointer;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    color: var(--text-dim);
-    transition: color 0.2s;
-}
-
-.script-start:hover,
-.script-restart:hover {
-    color: var(--accent-color);
 }
 
 .script-start:disabled,

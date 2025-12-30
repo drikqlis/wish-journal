@@ -25,7 +25,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 </div>
                 <div class="video-buttons">
                     <div class="video-volume-container">
-                        <button class="video-volume-icon-btn" aria-label="Mute">
+                        <button class="button video-volume-icon-btn" aria-label="Mute">
                             <span class="video-volume-icon">${getIcon('volume-high')}</span>
                         </button>
                         <div class="video-volume-track media-volume-track">
@@ -33,13 +33,13 @@ document.addEventListener('DOMContentLoaded', function() {
                             <div class="video-volume-bar media-volume-bar"></div>
                         </div>
                     </div>
-                    <button class="video-button video-play-pause" aria-label="Play">
+                    <button class="button video-button video-play-pause" aria-label="Play">
                         <span class="video-play-icon">${getIcon('play')}</span>
                     </button>
-                    <a class="video-button video-download" download aria-label="Download">
+                    <a class="button video-button video-download" download aria-label="Download">
                         <span class="video-download-icon">${getIcon('download')}</span>
                     </a>
-                    <button class="video-button video-fullscreen" aria-label="Fullscreen">
+                    <button class="button video-button video-fullscreen" aria-label="Fullscreen">
                         <span class="video-fullscreen-icon">${getIcon('fullscreen')}</span>
                     </button>
                 </div>

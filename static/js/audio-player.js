@@ -35,7 +35,7 @@ document.addEventListener('DOMContentLoaded', function() {
             </div>
             <div class="audio-buttons">
                 <div class="audio-volume-container">
-                    <button class="audio-volume-icon-btn" aria-label="Mute">
+                    <button class="button audio-volume-icon-btn" aria-label="Mute">
                         <span class="audio-volume-icon">${getIcon('volume-high')}</span>
                     </button>
                     <div class="audio-volume-track media-volume-track">
@@ -43,10 +43,10 @@ document.addEventListener('DOMContentLoaded', function() {
                         <div class="audio-volume-bar media-volume-bar"></div>
                     </div>
                 </div>
-                <button class="audio-button audio-play-pause" aria-label="Play">
+                <button class="button audio-button audio-play-pause" aria-label="Play">
                     <span class="audio-play-icon">${getIcon('play')}</span>
                 </button>
-                <a class="audio-button audio-download" download aria-label="Download">
+                <a class="button audio-button audio-download" download aria-label="Download">
                     <span class="audio-download-icon">${getIcon('download')}</span>
                 </a>
             </div>

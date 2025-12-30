@@ -130,7 +130,7 @@ class PythonScriptBlockProcessor(BlockProcessor):
             </div>
           </div>
           <div class="script-controls">
-            <button class="script-start" aria-label="Uruchom skrypt">
+            <button class="button script-start" aria-label="Uruchom skrypt">
               <span class="script-icon"></span>
             </button>
             <span class="script-status idle">Naciśnij przycisk aby rozpocząć</span>
@@ -210,7 +210,7 @@ class PythonScriptBlockProcessor(BlockProcessor):
 
         # Start button (will become restart after first run)
         button = etree.SubElement(controls, 'button')
-        button.set('class', 'script-start')
+        button.set('class', 'button script-start')
         button.set('aria-label', 'Uruchom skrypt')
 
         # Button icon (play initially, will change to restart via JS)
