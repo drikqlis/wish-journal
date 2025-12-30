@@ -112,128 +112,6 @@ class GalleryExtension(Extension):
         )
 
 
-class PythonScriptBlockProcessor(BlockProcessor):
-    """Custom markdown processor for interactive Python scripts.
-
-    Syntax:
-        :::python-script path="examples/hello.py" title="Script Title"
-        :::
-
-    Generates HTML structure:
-        <div class="script-wrapper" data-script-path="examples/hello.py">
-          <div class="script-title">Script Title</div>
-          <div class="script-terminal">
-            <div class="script-output"></div>
-            <div class="script-input-container">
-              <span class="script-prompt">>>> </span>
-              <input type="text" class="script-input" disabled>
-            </div>
-          </div>
-          <div class="script-controls">
-            <button class="button script-start" aria-label="Uruchom skrypt">
-              <span class="script-icon"></span>
-            </button>
-            <span class="script-status idle">Naciśnij przycisk aby rozpocząć</span>
-          </div>
-        </div>
-    """
-
-    RE_PATH = re.compile(r'path="([^"]*)"')
-    RE_TITLE = re.compile(r'title="([^"]*)"')
-
-    def test(self, parent, block):
-        """Check if block starts with :::python-script"""
-        lines = block.split('\n')
-        return lines[0].strip().startswith(':::python-script')
-
-    def run(self, parent, blocks):
-        """Parse the python-script block and generate HTML."""
-        block = blocks.pop(0)
-        lines = block.split('\n')
-
-        # Parse first line for attributes
-        first_line = lines[0]
-
-        # Extract path (required)
-        path_match = self.RE_PATH.search(first_line)
-        if not path_match:
-            logger.warning("python-script block missing required path attribute")
-            return False
-
-        script_path = path_match.group(1)
-
-        # Validate script path exists
-        resolved_path = get_script_path(script_path)
-        if not resolved_path:
-            logger.warning(f"Invalid script path: {script_path}")
-            # Create error message div
-            error_div = etree.SubElement(parent, 'div')
-            error_div.set('class', 'script-error')
-            error_div.text = f"Błąd: nie znaleziono skryptu '{script_path}'"
-            return True
-
-        # Extract title (optional, defaults to filename)
-        title_match = self.RE_TITLE.search(first_line)
-        title = title_match.group(1) if title_match else Path(script_path).stem
-
-        # Create wrapper div with data attribute
-        wrapper = etree.SubElement(parent, 'div')
-        wrapper.set('class', 'script-wrapper')
-        wrapper.set('data-script-path', script_path)
-
-        # Create title header
-        title_div = etree.SubElement(wrapper, 'div')
-        title_div.set('class', 'script-title')
-        title_div.text = title
-
-        # Create terminal area
-        terminal = etree.SubElement(wrapper, 'div')
-        terminal.set('class', 'script-terminal')
-
-        # Output area (initially empty)
-        output = etree.SubElement(terminal, 'div')
-        output.set('class', 'script-output empty')
-
-        # Input container
-        input_container = etree.SubElement(terminal, 'div')
-        input_container.set('class', 'script-input-container')
-
-        # Input field (no visible prompt, browser cursor handles it)
-        input_field = etree.SubElement(input_container, 'input')
-        input_field.set('type', 'text')
-        input_field.set('class', 'script-input')
-        input_field.set('disabled', 'disabled')
-
-        # Controls area
-        controls = etree.SubElement(wrapper, 'div')
-        controls.set('class', 'script-controls')
-
-        # Start button (will become restart after first run)
-        button = etree.SubElement(controls, 'button')
-        button.set('class', 'button script-start')
-        button.set('aria-label', 'Uruchom skrypt')
-
-        # Button icon (play initially, will change to restart via JS)
-        # Use a span wrapper for inline SVG (populated by JavaScript using getIcon())
-        icon = etree.SubElement(button, 'span')
-        icon.set('class', 'script-icon')
-
-        # Running indicator (hidden by default)
-        indicator = etree.SubElement(controls, 'span')
-        indicator.set('class', 'script-running-indicator')
-
-        return True
-
-
-class PythonScriptExtension(Extension):
-    """Markdown extension for interactive Python scripts."""
-
-    def extendMarkdown(self, md):
-        md.parser.blockprocessors.register(
-            PythonScriptBlockProcessor(md.parser), 'python-script', 176
-        )
-
-
 class InteractiveWidgetBlockProcessor(BlockProcessor):
     """Custom markdown processor for web-native interactive widgets.
 
@@ -336,12 +214,9 @@ def parse_frontmatter(content: str) -> tuple[dict, str]:
 
 
 def strip_media_from_text(text: str) -> str:
-    """Remove images, audio, video, galleries, Python scripts, and interactive widgets from markdown/HTML text."""
+    """Remove images, audio, video, galleries, and interactive widgets from markdown/HTML text."""
     # Remove gallery blocks: :::gallery ... :::
     text = re.sub(r':::gallery[^\n]*\n.*?:::', '', text, flags=re.DOTALL)
-
-    # Remove python-script blocks: :::python-script ... :::
-    text = re.sub(r':::python-script[^\n]*\n.*?:::', '', text, flags=re.DOTALL)
 
     # Remove widget blocks: :::widget ... :::
     text = re.sub(r':::widget[^\n]*\n.*?:::', '', text, flags=re.DOTALL)
@@ -381,7 +256,6 @@ def load_posts() -> None:
         "tables",
         "nl2br",
         GalleryExtension(),
-        PythonScriptExtension(),
         InteractiveWidgetExtension()
     ])
 
@@ -451,44 +325,6 @@ def get_media_path(path: str) -> Path | None:
             return safe_path
 
     return None
-
-
-def get_script_path(path: str) -> Path | None:
-    """
-    Validate and resolve script path within content/scripts/ directory.
-
-    Args:
-        path: Relative path to script (e.g., "examples/hello.py")
-
-    Returns:
-        Resolved Path object if valid, None otherwise
-
-    Security checks:
-    - Must exist and be a file
-    - Must have .py extension
-    - Must resolve within content directory (prevents directory traversal)
-    """
-    content_path = current_app.config.get("CONTENT_PATH", "/content")
-    script_path = Path(content_path) / "scripts" / path
-
-    # Check existence and file type
-    if not script_path.exists() or not script_path.is_file():
-        logger.warning(f"Script path does not exist or is not a file: {script_path}")
-        return None
-
-    # Check extension
-    if script_path.suffix != '.py':
-        logger.warning(f"Script path must be a .py file: {script_path}")
-        return None
-
-    # Resolve symlinks and verify within content directory
-    safe_path = script_path.resolve()
-    content_resolved = Path(content_path).resolve()
-    if not str(safe_path).startswith(str(content_resolved)):
-        logger.warning(f"Script path outside content directory: {safe_path}")
-        return None
-
-    return safe_path
 
 
 def load_footer_messages() -> None:

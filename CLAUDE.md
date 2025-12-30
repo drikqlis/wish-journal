@@ -63,7 +63,6 @@ wish-journal/
 │   │   └── interactive-widgets.css  # Widget styling
 │   ├── js/
 │   │   ├── interactive-widgets.js   # Web-native widget framework
-│   │   ├── python-script.js     # Python script execution client
 │   │   └── ...                  # Other JS modules
 │   └── favicon.ico              # Site favicon
 ├── content/                      # Content storage (dynamic)
@@ -117,7 +116,6 @@ wish-journal/
 2. On startup, `load_posts()` reads and parses all `.md` files
 3. Markdown body converted to HTML with custom extensions:
    - **Gallery blocks** (`:::gallery`) - Image galleries with lightbox
-   - **Python script execution** (`:::python-script`) - Server-side Python via SSE
    - **Interactive widgets** (`:::widget`) - Client-side web-native widgets
 4. Excerpts generated (first 500 chars, media/widgets stripped)
 5. Posts cached in memory, sorted by date (newest first)
