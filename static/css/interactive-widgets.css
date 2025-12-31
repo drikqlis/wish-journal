@@ -404,6 +404,10 @@
     }
 }
 
+.cipher-pair:active {
+    border-color: var(--accent-color);
+}
+
 .cipher-skip-pair {
     color: var(--text-dim);
 }
@@ -412,6 +416,10 @@
     .cipher-skip-pair:hover {
         color: var(--text-color);
     }
+}
+
+.cipher-skip-pair:active {
+    color: var(--text-color);
 }
 
 .cipher-auto-btn {
