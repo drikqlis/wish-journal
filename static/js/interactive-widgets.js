@@ -981,12 +981,525 @@
         }
     }
 
+    /**
+     * Cipher Decryption Widget (HA-LO-JU-PI-TE-RY)
+     * Visually demonstrates letter substitution cipher decryption
+     */
+    class CipherDecryptionWidget {
+        constructor(element) {
+            this.element = element;
+            this.config = this.parseConfig(element.dataset.config);
+
+            // Cipher pairs - consecutive pairs of letters map to each other
+            this.cipherKey = this.config.key || "HALOJUPITERY";
+            this.encryptedText = this.config.text || "ilszjkjucptszrb";
+            this.decryptedMessage = this.config.decryptedMessage || '';
+
+            // Parse cipher key into mapping
+            this.createCipherMapping();
+
+            // State
+            this.currentStep = 0;
+            this.running = false;
+            this.hasRunOnce = false;
+            this.manualMode = true;
+            this.currentIndex = 0;
+            this.sessionId = 0; // Track render sessions to abort old async operations
+
+            // Create container
+            this.container = document.createElement('div');
+            this.container.className = 'cipher-container';
+            this.element.appendChild(this.container);
+
+            // Create standard controls (like other widgets)
+            this.controls = document.createElement('div');
+            this.controls.className = 'widget-controls';
+            this.element.appendChild(this.controls);
+
+            this.button = document.createElement('button');
+            this.button.className = 'widget-start';
+            this.button.setAttribute('aria-label', 'Uruchom widget');
+            const icon = document.createElement('span');
+            icon.className = 'widget-icon';
+            icon.innerHTML = getIcon('play');
+            this.button.appendChild(icon);
+
+            this.runningIndicator = document.createElement('span');
+            this.runningIndicator.className = 'widget-running-indicator';
+
+            this.controls.appendChild(this.button);
+            this.controls.appendChild(this.runningIndicator);
+
+            this.button.addEventListener('click', () => this.handleButtonClick());
+
+            // Initial render
+            this.renderInitialState();
+        }
+
+        handleTerminalClick() {
+            // Only start on click if not running yet (like other widgets)
+            if (!this.running && !this.hasRunOnce) {
+                this.handleButtonClick();
+            }
+        }
+
+        parseConfig(configStr) {
+            try {
+                return configStr ? JSON.parse(configStr) : {};
+            } catch (e) {
+                console.error('[CipherDecryptionWidget] Invalid config:', e);
+                return {};
+            }
+        }
+
+        createCipherMapping() {
+            // HALOJUPITERY means pairs: H-A, L-O, J-U, P-I, T-E, R-Y
+            // Each consecutive pair of letters creates a bidirectional mapping
+            this.mapping = {};
+            const key = this.cipherKey.toUpperCase();
+
+            // Parse pairs from consecutive characters (H-A, L-O, J-U, etc.)
+            this.pairs = [];
+            for (let i = 0; i < key.length - 1; i += 2) {
+                const char1 = key[i];
+                const char2 = key[i + 1];
+
+                // Bidirectional mapping
+                this.mapping[char1] = char2;
+                this.mapping[char2] = char1;
+
+                // Store pair for display
+                this.pairs.push([char1, char2]);
+            }
+        }
+
+        decrypt(text) {
+            return text.toUpperCase().split('').map(char => {
+                return this.mapping[char] || char;
+            }).join('');
+        }
+
+        renderInitialState() {
+            // Create terminal-style black screen
+            this.container.innerHTML = `
+                <div class="widget-terminal clickable">
+                    <span style="color: var(--text-dim); font-style: italic;">Uruchom skrypt...</span>
+                </div>
+            `;
+
+            this.terminalDiv = this.container.querySelector('.widget-terminal');
+            this.terminalDiv.addEventListener('click', () => this.handleTerminalClick());
+        }
+
+        renderCipherInterface() {
+            // Render cipher key pairs with X — X button and AUTO button
+            const pairsHtml = this.pairs.map(([char1, char2]) =>
+                `<span class="cipher-pair" data-pair="${char1}${char2}">${char1} — ${char2}</span>`
+            ).join('');
+
+            const skipPairHtml = `<span class="cipher-pair cipher-skip-pair" data-pair="skip">X — X</span>`;
+            const autoBtnHtml = `<span class="cipher-pair cipher-auto-btn" data-action="auto">AUTO</span>`;
+
+            this.terminalDiv.className = 'widget-terminal'; // Remove clickable class
+            this.terminalDiv.innerHTML = `
+                <div class="terminal-line cipher-header">Klucz szyfru:</div>
+                <div class="terminal-line cipher-pairs-line">
+                    ${pairsHtml}
+                    ${skipPairHtml}
+                    ${autoBtnHtml}
+                </div>
+                <div class="terminal-line cipher-header">Zaszyfrowany tekst:</div>
+                <div class="terminal-line cipher-text-line"></div>
+            `;
+
+            // Render encrypted text chars
+            const textLine = this.terminalDiv.querySelector('.cipher-text-line');
+            const encryptedChars = this.encryptedText.toUpperCase().split('');
+            encryptedChars.forEach((char, i) => {
+                const span = document.createElement('span');
+                span.className = 'cipher-char';
+                span.dataset.index = i;
+                span.textContent = char;
+                textLine.appendChild(span);
+            });
+
+            this.attachPairClickHandlers();
+        }
+
+        attachPairClickHandlers() {
+            const pairs = this.terminalDiv.querySelectorAll('.cipher-pair:not(.cipher-skip-pair):not(.cipher-auto-btn)');
+            const skipPair = this.terminalDiv.querySelector('.cipher-skip-pair');
+            const autoBtn = this.terminalDiv.querySelector('.cipher-auto-btn');
+
+            pairs.forEach(pair => {
+                pair.style.cursor = 'pointer';
+                pair.addEventListener('click', (e) => this.handlePairClick(e.currentTarget));
+            });
+
+            if (skipPair) {
+                skipPair.style.cursor = 'pointer';
+                skipPair.addEventListener('click', () => this.handleSkipClick());
+            }
+
+            if (autoBtn) {
+                autoBtn.style.cursor = 'pointer';
+                autoBtn.addEventListener('click', () => this.handleAutoClick());
+            }
+        }
+
+        handleButtonClick() {
+            // Stop if running - synchronous stop
+            if (this.running) {
+                this.stop();
+            }
+
+            if (!this.hasRunOnce) {
+                this.hasRunOnce = true;
+            }
+
+            this.button.className = 'widget-restart';
+            this.button.setAttribute('aria-label', 'Restart widgetu');
+            const icon = this.button.querySelector('.widget-icon');
+            if (icon) {
+                icon.innerHTML = getIcon('restart');
+            }
+
+            // Always restart (start() will reset to manual mode)
+            this.start();
+        }
+
+        handleAutoClick() {
+            if (!this.running) return;
+            if (!this.manualMode) return; // Already in auto mode
+
+            // Switch to auto mode and start auto decryption from current position
+            this.manualMode = false;
+            this.animateDecryption();
+        }
+
+        async handleSkipClick() {
+            if (!this.running || !this.manualMode) return;
+
+            const sessionId = this.sessionId; // Capture current session
+            const encryptedChars = this.encryptedText.toUpperCase().split('');
+            if (this.currentIndex >= encryptedChars.length) return;
+
+            const currentChar = encryptedChars[this.currentIndex];
+            const skipPair = this.terminalDiv.querySelector('.cipher-skip-pair');
+
+            // Only allow skip if no cipher pair contains this character
+            const charInCipher = this.pairs.some(pair =>
+                pair[0] === currentChar || pair[1] === currentChar
+            );
+
+            if (charInCipher) {
+                // This character has a cipher pair, show error
+                if (skipPair) {
+                    skipPair.style.backgroundColor = '#ff4444';
+                    skipPair.style.color = '#fff';
+                    await this.sleep(300);
+                    if (this.sessionId !== sessionId) return;
+                    skipPair.style.backgroundColor = '';
+                    skipPair.style.color = '';
+                }
+                return;
+            }
+
+            // Highlight the X — X pair
+            if (skipPair) {
+                skipPair.style.backgroundColor = 'var(--accent-color)';
+                skipPair.style.color = '#000';
+            }
+
+            await this.sleep(300);
+            if (this.sessionId !== sessionId) return;
+
+            // Keep current letter, just move to next
+            const charSpan = this.terminalDiv.querySelector(`.cipher-char[data-index="${this.currentIndex}"]`);
+            if (charSpan) {
+                charSpan.classList.remove('active');
+            }
+
+            if (skipPair) {
+                skipPair.style.backgroundColor = '';
+                skipPair.style.color = '';
+            }
+
+            this.currentIndex++;
+
+            if (this.currentIndex < encryptedChars.length) {
+                await this.sleep(200);
+                if (this.sessionId !== sessionId) return;
+                this.highlightCurrentChar();
+            } else {
+                this.finish();
+            }
+        }
+
+        stop() {
+            this.running = false;
+            this.manualMode = true;
+
+            // Clear all active highlights
+            if (this.terminalDiv) {
+                const activeChars = this.terminalDiv.querySelectorAll('.cipher-char.active');
+                activeChars.forEach(char => char.classList.remove('active'));
+                this.clearHighlight();
+            }
+
+            this.runningIndicator.classList.remove('running');
+            this.runningIndicator.textContent = 'Nie śmigam';
+        }
+
+        async start() {
+            this.running = true;
+            this.currentStep = 0;
+            this.currentIndex = 0;
+            this.manualMode = true; // Always reset to manual mode on start
+            this.sessionId++; // Increment session to invalidate old async operations
+
+            this.runningIndicator.classList.add('running');
+            this.runningIndicator.textContent = 'Śmigam';
+
+            // Create terminal for loading sequence
+            this.terminalDiv.className = 'widget-terminal';
+            this.terminalDiv.innerHTML = '';
+
+            // Loading sequence
+            const sessionId = this.sessionId;
+            await this.slowPrint('Ładowanie bibliotek...', sessionId);
+            if (this.sessionId !== sessionId) return;
+
+            await this.slowPrint('Uruchamianie dekryptora...', sessionId);
+            if (this.sessionId !== sessionId) return;
+
+            await this.slowPrint('Ujarzmianie liter...', sessionId);
+            if (this.sessionId !== sessionId) return;
+
+            await this.sleep(300);
+            if (this.sessionId !== sessionId) return;
+
+            // Render the cipher interface (this will render original encrypted text)
+            this.renderCipherInterface();
+
+            this.startManualMode();
+        }
+
+        startManualMode() {
+            // Highlight the first character to decrypt
+            this.highlightCurrentChar();
+        }
+
+        highlightCurrentChar() {
+            const encryptedChars = this.encryptedText.toUpperCase().split('');
+            if (this.currentIndex >= encryptedChars.length) {
+                this.finish();
+                return;
+            }
+
+            const charSpan = this.terminalDiv.querySelector(`.cipher-char[data-index="${this.currentIndex}"]`);
+            if (charSpan) {
+                charSpan.classList.add('active');
+            }
+        }
+
+        handlePairClick(pairElement) {
+            if (!this.running || !this.manualMode) return;
+
+            const encryptedChars = this.encryptedText.toUpperCase().split('');
+            if (this.currentIndex >= encryptedChars.length) return;
+
+            const currentChar = encryptedChars[this.currentIndex];
+            const pairData = pairElement.dataset.pair;
+
+            // Check if clicked pair contains the current encrypted character
+            if (pairData.includes(currentChar)) {
+                // Correct pair clicked!
+                this.decryptCurrentChar();
+            } else {
+                // Wrong pair clicked
+                this.showError(pairElement);
+            }
+        }
+
+        async decryptCurrentChar() {
+            if (!this.running || !this.manualMode) return;
+
+            const sessionId = this.sessionId; // Capture current session
+            const encryptedChars = this.encryptedText.toUpperCase().split('');
+            const decryptedChars = this.decrypt(this.encryptedText).split('');
+
+            const charSpan = this.terminalDiv.querySelector(`.cipher-char[data-index="${this.currentIndex}"]`);
+            if (!charSpan) return;
+
+            const encChar = encryptedChars[this.currentIndex];
+            const decChar = decryptedChars[this.currentIndex];
+
+            // Highlight the correct pair
+            this.highlightPair(encChar);
+            await this.sleep(300);
+
+            if (!this.running || !this.manualMode || this.sessionId !== sessionId) return;
+
+            // Change to decrypted character
+            charSpan.textContent = decChar;
+            await this.sleep(200);
+
+            if (!this.running || !this.manualMode || this.sessionId !== sessionId) return;
+
+            // Remove highlights
+            charSpan.classList.remove('active');
+            this.clearHighlight();
+
+            // Move to next character
+            this.currentIndex++;
+
+            if (this.currentIndex < encryptedChars.length) {
+                await this.sleep(200);
+                if (!this.running || !this.manualMode || this.sessionId !== sessionId) return;
+                this.highlightCurrentChar();
+            } else {
+                this.finish();
+            }
+        }
+
+        async showError(pairElement) {
+            pairElement.style.backgroundColor = '#ff4444';
+            pairElement.style.color = '#fff';
+            await this.sleep(300);
+            pairElement.style.backgroundColor = '';
+            pairElement.style.color = '';
+        }
+
+        async animateDecryption() {
+            const sessionId = this.sessionId; // Capture current session
+            const encryptedChars = this.encryptedText.toUpperCase().split('');
+            const decryptedChars = this.decrypt(this.encryptedText).split('');
+            const skipPair = this.terminalDiv.querySelector('.cipher-skip-pair');
+
+            // Decrypt letter by letter with animation, starting from currentIndex
+            for (let i = this.currentIndex; i < encryptedChars.length; i++) {
+                if (!this.running || this.manualMode || this.sessionId !== sessionId) return;
+
+                const encChar = encryptedChars[i];
+                const decChar = decryptedChars[i];
+                const charSpan = this.terminalDiv.querySelector(`.cipher-char[data-index="${i}"]`);
+
+                if (!charSpan) continue;
+
+                // Highlight current character
+                charSpan.classList.add('active');
+
+                // Check if character has a cipher pair or should use X — X
+                const charInCipher = this.pairs.some(pair =>
+                    pair[0] === encChar || pair[1] === encChar
+                );
+
+                if (charInCipher) {
+                    this.highlightPair(encChar);
+                } else {
+                    // Highlight X — X for non-cipher characters
+                    if (skipPair) {
+                        skipPair.style.backgroundColor = 'var(--accent-color)';
+                        skipPair.style.color = '#000';
+                    }
+                }
+
+                await this.sleep(80);
+                if (this.sessionId !== sessionId) return;
+
+                // Change to decrypted character
+                charSpan.textContent = decChar;
+
+                await this.sleep(50);
+                if (this.sessionId !== sessionId) return;
+
+                // Remove highlights
+                charSpan.classList.remove('active');
+                this.clearHighlight();
+
+                this.currentIndex = i + 1;
+                await this.sleep(30);
+                if (this.sessionId !== sessionId) return;
+            }
+
+            this.finish();
+        }
+
+        highlightPair(char) {
+            const pairs = this.terminalDiv.querySelectorAll('.cipher-pair:not(.cipher-skip-pair):not(.cipher-auto-btn)');
+            pairs.forEach(pair => {
+                if (pair.textContent.includes(char)) {
+                    pair.style.backgroundColor = 'var(--accent-color)';
+                    pair.style.color = '#000';
+                }
+            });
+        }
+
+        clearHighlight() {
+            const pairs = this.terminalDiv.querySelectorAll('.cipher-pair');
+            pairs.forEach(pair => {
+                pair.style.backgroundColor = '';
+                pair.style.color = '';
+            });
+        }
+
+        sleep(ms) {
+            return new Promise(resolve => setTimeout(resolve, ms));
+        }
+
+        async slowPrint(text, sessionId, delayMs = 30, className = '') {
+            const line = document.createElement('div');
+            line.className = className ? `terminal-line ${className}` : 'terminal-line';
+            this.terminalDiv.appendChild(line);
+            this.terminalDiv.scrollTop = this.terminalDiv.scrollHeight;
+
+            for (let i = 0; i < text.length; i++) {
+                if (this.sessionId !== sessionId) return;
+                line.textContent += text[i];
+                this.terminalDiv.scrollTop = this.terminalDiv.scrollHeight;
+                await this.sleep(delayMs);
+            }
+        }
+
+        async finish() {
+            this.running = false;
+            this.manualMode = true;
+            this.runningIndicator.classList.remove('running');
+            this.runningIndicator.textContent = 'Nie śmigam';
+
+            // Display final decrypted message if provided
+            if (this.decryptedMessage) {
+                const sessionId = this.sessionId;
+
+                // Animate header with bold styling
+                const headerLine = document.createElement('div');
+                headerLine.className = 'terminal-line cipher-header';
+                this.terminalDiv.appendChild(headerLine);
+                this.terminalDiv.scrollTop = this.terminalDiv.scrollHeight;
+
+                for (let i = 0; i < 'Odszyfrowana wiadomość:'.length; i++) {
+                    if (this.sessionId !== sessionId) return;
+                    headerLine.textContent += 'Odszyfrowana wiadomość:'[i];
+                    this.terminalDiv.scrollTop = this.terminalDiv.scrollHeight;
+                    await this.sleep(30);
+                }
+
+                if (this.sessionId !== sessionId) return;
+
+                // Animate message
+                await this.slowPrint(this.decryptedMessage, sessionId);
+            }
+        }
+    }
+
     // Register widgets
     registry.register('terminal-sim', TerminalSimWidget);
     registry.register('entry', EntryWidget);
     registry.register('soul-reanimation', SoulReanimationWidget);
     registry.register('dangerous-reanimation', DangerousReanimationWidget);
     registry.register('object-animation', ObjectAnimationWidget);
+    registry.register('cipher-decrypt', CipherDecryptionWidget);
 
     // Auto-initialize on page load
     document.addEventListener('DOMContentLoaded', () => {
