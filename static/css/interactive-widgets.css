@@ -398,16 +398,20 @@
     transition: all 0.3s ease;
 }
 
-.cipher-pair:hover {
-    border-color: var(--accent-color);
+@media (hover: hover) {
+    .cipher-pair:hover {
+        border-color: var(--accent-color);
+    }
 }
 
 .cipher-skip-pair {
     color: var(--text-dim);
 }
 
-.cipher-skip-pair:hover {
-    color: var(--text-color);
+@media (hover: hover) {
+    .cipher-skip-pair:hover {
+        color: var(--text-color);
+    }
 }
 
 .cipher-auto-btn {
