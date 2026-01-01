@@ -29,7 +29,6 @@
          */
         register(type, WidgetClass) {
             this.widgets.set(type, WidgetClass);
-            console.log(`[WidgetRegistry] Registered widget type: ${type}`);
         }
 
         /**
@@ -43,7 +42,6 @@
                 if (WidgetClass) {
                     try {
                         new WidgetClass(element);
-                        console.log(`[WidgetRegistry] Initialized ${type} widget`);
                     } catch (error) {
                         console.error(`[WidgetRegistry] Error initializing ${type}:`, error);
                     }
